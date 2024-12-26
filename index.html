@@ -1,0 +1,43 @@
+<!DOCTYPE html> 
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedido</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Cotizador de Cajas de Vino</h1>
+
+        <!-- Consulta inicial -->
+        <div id="consultaMedidas" style="margin-bottom: 20px;">
+            <p>¿Cuántas medidas de caja deseas cotizar?</p>
+            <div style="display: flex; gap: 10px;">
+                <button type="button" onclick="generarPestanas(1)">1 Medida</button>
+                <button type="button" onclick="generarPestanas(2)">2 Medidas</button>
+                <button type="button" onclick="generarPestanas(3)">3 Medidas</button>
+            </div>
+        </div>
+
+        <!-- Contenedor de pestañas dinámicas -->
+        <div id="contenedorPestanas"></div>
+
+        <!-- Contenedor para las sugerencias de escalas de precios -->
+        <div id="sugerenciaEscalas" style="margin-top: 20px; font-size: 14px; color: #555;"></div>
+
+        <!-- Contenedor para mostrar el resultado final -->
+        <div id="resultadoFinal" style="margin-top: 20px;"></div>
+       
+        <!-- Botón para exportar a PDF -->
+        <button id="exportar" style="display: none; margin-top: 10px;" onclick="exportarJPG()">Exportar Resumen</button>
+
+        
+    </div>
+    <script src="script.js"></script>
+    
+</body>
+</html>
