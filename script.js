@@ -319,7 +319,7 @@ function generarPestanas(cantidad) {
 
                     <!-- Mensaje de descuento -->
                     <p style="font-size: 14px; color: #555; margin-top: 10px;">
-                        Llevando más de <strong>50 cajas</strong>, obtienes un <strong>descuento del 6%</strong> en las cajas.
+                        Llevando más de <strong>50 cajas</strong>, obtienes un descuento.
                     </p>
 
                     <div>
