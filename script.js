@@ -167,7 +167,7 @@ function calcularPrecioTotal(cantidadPestanas) {
 
         let precioCajaTotal = precioCajaUnitario * cantidad;
         if (cantidad > 50) {
-            precioCajaTotal *= 0.9; // Descuento del 10%
+            precioCajaTotal *= 0.94; // Descuento del 6%
         }
         totalCajas += precioCajaTotal;
 
@@ -319,7 +319,7 @@ function generarPestanas(cantidad) {
 
                     <!-- Mensaje de descuento -->
                     <p style="font-size: 14px; color: #555; margin-top: 10px;">
-                        Llevando más de <strong>50 cajas</strong>, obtienes un <strong>descuento del 10%</strong> en las cajas.
+                        Llevando más de <strong>50 cajas</strong>, obtienes un <strong>descuento del 6%</strong> en las cajas.
                     </p>
 
                     <div>
