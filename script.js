@@ -118,7 +118,7 @@ function generarSugerenciasPrecios(logosAgrupados) {
     }
 
     document.getElementById('sugerenciaEscalas').innerHTML = `
-        <p style="font-size: 14px; color:rgb(255, 255, 255); margin-top: 10px;">
+        <p style="font-size: 14px; color: #555; margin-top: 10px;">
             ${mensajes.join('<br><br>')}
         </p>
     `;
@@ -297,7 +297,7 @@ function generarPestanas(cantidad) {
         const pestana = document.createElement('div');
         pestana.className = 'pestana';
         pestana.innerHTML = `
-            <div style="padding: 10px; background-color:rgb(255, 255, 255); cursor: pointer;" onclick="togglePestana(${i})">
+            <div style="padding: 10px; background-color: #f7f7f7; cursor: pointer;" onclick="togglePestana(${i})">
                 <strong>Medida ${i}</strong>
             </div>
             <div id="contenido-${i}" style="display: none; padding: 10px;">
@@ -318,7 +318,7 @@ function generarPestanas(cantidad) {
                     <input type="number" id="cantidad-${i}" min="1" required placeholder="Introduce la cantidad">
 
                     <!-- Mensaje de descuento -->
-                    <p style="font-size: 14px; color:rgb(255, 255, 255); margin-top: 10px;">
+                    <p style="font-size: 14px; color: #555; margin-top: 10px;">
                         Llevando más de <strong>50 cajas</strong>, obtienes un <strong>descuento del 6%</strong> en las cajas.
                     </p>
 
@@ -408,7 +408,7 @@ function toggleLogoFields(index, logoNumber) {
             const mensajeApaisado = document.createElement('p');
             mensajeApaisado.id = `mensajeApaisado-${logoNumber}-${index}`;
             mensajeApaisado.textContent = 'Si quiere logo apaisado poner el lado de mayor longitud en altura.';
-            mensajeApaisado.style.color = 'white';
+            mensajeApaisado.style.color = 'gray';
             mensajeApaisado.style.fontSize = '12px';
             mensajeApaisado.style.marginTop = '5px';
             logoFields.appendChild(mensajeApaisado);
