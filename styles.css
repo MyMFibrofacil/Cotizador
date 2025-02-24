@@ -1,123 +1,204 @@
-/* Estilos generales */
+/* Estilo global */
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: Arial, sans-serif;
-    margin: 20px;
-    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+    background-color: #1f1f1f; /* Fondo general oscuro */
+    color: #f0f0f0; /* Texto claro */
 }
 
+/* Contenedor principal */
 .container {
-    max-width: 600px;
-    margin: 0 auto;
-    background: white;
+    width: 90%;
+    max-width: 1200px;
+    margin: 20px auto;
+    background: #2b2b2b; /* Fondo gris oscuro */
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
-label, input, select, button {
+/* Título principal */
+.container h1 {
+    margin-top: 0;
+    color: #ffffff;
+    text-align: center;
+    font-weight: 400;
+    margin-bottom: 30px;
+}
+
+/* Labels e inputs */
+label {
     display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+input, select {
     width: 100%;
     margin-bottom: 15px;
-    padding: 8px;
-    font-size: 1em;
-}
-
-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
     padding: 10px;
     font-size: 1em;
+    color: #e0e0e0;
+    background-color: #3c3c3c;
+    border: 1px solid #555;
     border-radius: 4px;
 }
 
-button:hover {
-    background-color: #0056b3;
+input:focus, select:focus {
+    outline: none;
+    border-color: #888;
+    background-color: #454545;
 }
 
+/* Botones */
+button {
+    font-size: 1em;
+    font-weight: 600;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+/* Botón principal en rojo */
+.btn-red {
+    background-color: #d9534f;
+    color: #fff;
+}
+.btn-red:hover {
+    background-color: #c9302c;
+}
+
+/* Botón secundario en azul */
+.btn-blue {
+    background-color: #337ab7;
+    color: #fff;
+}
+.btn-blue:hover {
+    background-color: #2e6da4;
+}
+
+/* Botón de cálculo (puedes ajustarlo a tu gusto) */
+.btn-calculate {
+    background-color: #5cb85c;
+    color: #fff;
+}
+.btn-calculate:hover {
+    background-color: #4cae4c;
+}
+
+/* Resultados y contenedores */
 .result {
-    font-size: 1.2em;
+    font-size: 1.1em;
     font-weight: bold;
     margin-top: 20px;
-    color: #333;
+    color: #ffffff;
 }
 
-/* Estilos para tablas */
-table, .styled-table {
+/* Estilos para pestañas */
+.pestana > div:first-child {
+    background-color: #333333;
+    color: #ffffff;
+    padding: 10px;
+    cursor: pointer;
+    margin-bottom: 2px;
+    border-radius: 4px;
+}
+.pestana > div:first-child:hover {
+    background-color: #444444;
+}
+#contenedorPestanas .pestana {
+    margin-bottom: 15px;
+}
+#contenedorPestanas .pestana form {
+    margin-top: 10px;
+}
+
+/* Estilos para la tabla */
+table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
     font-size: 14px;
+    background-color: #2a2a2a;
+    border-radius: 4px;
+    overflow: hidden; /* Para que los bordes redondeados se apliquen */
 }
 
-th, td, .styled-table th, .styled-table td {
-    border: 1px solid #ccc;
-    padding: 10px;
+thead tr {
+    background-color: #3d3d3d;
+}
+
+th, td {
+    padding: 12px 10px;
     text-align: center;
-}
-
-th, .styled-table th {
-    background-color: #f2f2f2;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-/* Estilo para filas de la tabla */
-tbody tr {
-    font-size: 14px;
-    background-color: #fff;
+    border-bottom: 1px solid #444;
+    color: #f0f0f0;
 }
 
 tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
+    background-color: #343434;
 }
 
 tbody tr:hover {
-    background-color: #eaeaea;
-    transition: background-color 0.3s ease;
+    background-color: #3f3f3f;
 }
 
-/* Estilo para el pie de tabla */
 tfoot td {
     font-size: 14px;
     font-weight: bold;
-    border-top: 2px solid #000;
-    text-align: right;
+    border-top: 2px solid #555;
     padding-top: 10px;
+    color: #fff;
 }
 
 tfoot td.total-cell {
-    font-size: 20px;
-    font-weight: bold;
-    color: #333;
+    font-size: 18px;
+    color: #f0f0f0;
 }
 
-
-/* eliminar en caso de querer sacar el catalogo */
-#verCatalogo {
-    max-width: 600px;
-    margin: 0 auto;
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+/* Mensajes */
+#sugerenciaEscalas {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #c0c0c0;
 }
 
-#verCatalogo h2 {
-    font-size: 1.5em;
-}
-
-#catalogoButton {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-    padding: 10px;
-    font-size: 1em;
-    border-radius: 4px;
-}
-
-#catalogoButton:hover {
-    background-color: #0056b3;
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+    }
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+    thead {
+        display: none;
+    }
+    td {
+        text-align: left;
+        border: none;
+        position: relative;
+        padding-left: 50%;
+        margin-bottom: 5px;
+    }
+    td:before {
+        position: absolute;
+        left: 15px;
+        top: 12px;
+        white-space: nowrap;
+        color: #bbb;
+    }
+    tr td:nth-of-type(1):before { content: "Concepto"; }
+    tr td:nth-of-type(2):before { content: "Tipo de Tapa"; }
+    tr td:nth-of-type(3):before { content: "Cantidad"; }
+    tr td:nth-of-type(4):before { content: "Unitario"; }
+    tr td:nth-of-type(5):before { content: "Total"; }
 }
