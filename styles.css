@@ -1,73 +1,84 @@
-/* Estilo global */
+/* Reset básico */
 * {
+    margin: 0;
+    padding: 0;
     box-sizing: border-box;
 }
 
+/* Fuente y fondo general */
 body {
     font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #1f1f1f; /* Fondo general oscuro */
-    color: #f0f0f0; /* Texto claro */
+    background-color: #1a1a1a; /* Fondo más oscuro */
+    color: #f0f0f0;
 }
 
 /* Contenedor principal */
 .container {
-    width: 90%;
+    width: 95%;
     max-width: 1200px;
     margin: 20px auto;
-    background: #2b2b2b; /* Fondo gris oscuro */
+    background-color: #2b2b2b; /* Panel gris oscuro */
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 6px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
-/* Título principal */
-.container h1 {
-    margin-top: 0;
+/* Títulos */
+h1, h2, h3 {
+    font-weight: normal;
+    margin-bottom: 15px;
     color: #ffffff;
+}
+
+h1 {
     text-align: center;
-    font-weight: 400;
-    margin-bottom: 30px;
+}
+
+/* Subcontenedores */
+.subcontainer {
+    margin-bottom: 20px;
+    background-color: #1f1f1f; 
+    padding: 15px;
+    border-radius: 6px;
 }
 
 /* Labels e inputs */
 label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     font-weight: 600;
     color: #ffffff;
+    font-size: 0.9rem;
 }
 
-input, select {
+input, select, textarea {
     width: 100%;
-    margin-bottom: 15px;
     padding: 10px;
-    font-size: 1em;
-    color: #e0e0e0;
-    background-color: #3c3c3c;
-    border: 1px solid #555;
+    margin-bottom: 12px;
+    border: 1px solid #4caf50; /* Borde verde */
+    background-color: #333333; 
+    color: #ffffff;
     border-radius: 4px;
+    font-size: 0.9rem;
 }
 
-input:focus, select:focus {
+input:focus, select:focus, textarea:focus {
     outline: none;
-    border-color: #888;
-    background-color: #454545;
+    border-color: #66bb6a; /* Verde un poco más claro */
 }
 
 /* Botones */
 button {
-    font-size: 1em;
-    font-weight: 600;
     padding: 10px 15px;
     border: none;
     border-radius: 4px;
+    font-weight: 600;
     cursor: pointer;
     margin-right: 10px;
+    font-size: 0.9rem;
 }
 
-/* Botón principal en rojo */
+/* Botones de colores */
 .btn-red {
     background-color: #d9534f;
     color: #fff;
@@ -76,7 +87,6 @@ button {
     background-color: #c9302c;
 }
 
-/* Botón secundario en azul */
 .btn-blue {
     background-color: #337ab7;
     color: #fff;
@@ -85,96 +95,78 @@ button {
     background-color: #2e6da4;
 }
 
-/* Botón de cálculo (puedes ajustarlo a tu gusto) */
-.btn-calculate {
+.btn-green {
     background-color: #5cb85c;
     color: #fff;
 }
-.btn-calculate:hover {
+.btn-green:hover {
     background-color: #4cae4c;
 }
 
-/* Resultados y contenedores */
-.result {
-    font-size: 1.1em;
-    font-weight: bold;
-    margin-top: 20px;
-    color: #ffffff;
+.btn-gray {
+    background-color: #6c757d;
+    color: #fff;
+}
+.btn-gray:hover {
+    background-color: #5a6268;
 }
 
-/* Estilos para pestañas */
-.pestana > div:first-child {
-    background-color: #333333;
-    color: #ffffff;
-    padding: 10px;
-    cursor: pointer;
-    margin-bottom: 2px;
-    border-radius: 4px;
-}
-.pestana > div:first-child:hover {
-    background-color: #444444;
-}
-#contenedorPestanas .pestana {
-    margin-bottom: 15px;
-}
-#contenedorPestanas .pestana form {
-    margin-top: 10px;
-}
-
-/* Estilos para la tabla */
+/* Tabla */
 table {
     width: 100%;
     border-collapse: collapse;
+    background-color: #2b2b2b;
     margin-top: 20px;
-    font-size: 14px;
-    background-color: #2a2a2a;
-    border-radius: 4px;
-    overflow: hidden; /* Para que los bordes redondeados se apliquen */
+    border-radius: 6px;
+    overflow: hidden; /* Para los bordes redondeados en el thead/tbody */
 }
 
-thead tr {
+thead {
     background-color: #3d3d3d;
 }
-
-th, td {
+thead th {
     padding: 12px 10px;
-    text-align: center;
-    border-bottom: 1px solid #444;
     color: #f0f0f0;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.9rem;
 }
 
+tbody tr {
+    border-bottom: 1px solid #444;
+}
 tbody tr:nth-child(even) {
-    background-color: #343434;
+    background-color: #353535;
 }
-
-tbody tr:hover {
-    background-color: #3f3f3f;
+tbody td {
+    padding: 10px;
+    color: #f0f0f0;
+    text-align: center;
+    font-size: 0.9rem;
 }
 
 tfoot td {
-    font-size: 14px;
+    padding: 12px 10px;
     font-weight: bold;
-    border-top: 2px solid #555;
-    padding-top: 10px;
     color: #fff;
+    text-align: right;
 }
 
-tfoot td.total-cell {
-    font-size: 18px;
-    color: #f0f0f0;
-}
-
-/* Mensajes */
-#sugerenciaEscalas {
+/* Botonera inferior */
+.button-group {
+    display: flex;
+    justify-content: flex-end;
     margin-top: 20px;
-    font-size: 14px;
-    color: #c0c0c0;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
     .container {
         width: 95%;
+        padding: 10px;
+    }
+    .subcontainer {
+        padding: 10px;
     }
     table, thead, tbody, th, td, tr {
         display: block;
@@ -187,18 +179,20 @@ tfoot td.total-cell {
         border: none;
         position: relative;
         padding-left: 50%;
-        margin-bottom: 5px;
+        margin-bottom: 10px;
     }
     td:before {
         position: absolute;
         left: 15px;
-        top: 12px;
+        top: 10px;
         white-space: nowrap;
         color: #bbb;
+        font-weight: 600;
     }
-    tr td:nth-of-type(1):before { content: "Concepto"; }
-    tr td:nth-of-type(2):before { content: "Tipo de Tapa"; }
+    /* Ajusta los "content" según tus columnas */
+    tr td:nth-of-type(1):before { content: "Producto"; }
+    tr td:nth-of-type(2):before { content: "Descripción"; }
     tr td:nth-of-type(3):before { content: "Cantidad"; }
-    tr td:nth-of-type(4):before { content: "Unitario"; }
+    tr td:nth-of-type(4):before { content: "Precio Unit."; }
     tr td:nth-of-type(5):before { content: "Total"; }
 }
