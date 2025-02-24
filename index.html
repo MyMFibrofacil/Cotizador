@@ -1,91 +1,56 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pantalla de Pedido</title>
-  <link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedido</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="script.js"></script>
+
+
 </head>
 <body>
-  <div class="container">
-    <!-- Título principal -->
-    <h1>Información Pedido</h1>
+    <div class="container">
+        <h1>Cotizador de Cajas de Vino</h1>
 
-    <!-- Subcontenedor para datos del pedido -->
-    <div class="subcontainer">
-      <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-        <div style="flex: 1;">
-          <label for="vendedor">Vendedor:</label>
-          <input type="text" id="vendedor" placeholder="Ej: Juan Pérez" />
+        <!-- Consulta inicial -->
+        <div id="consultaMedidas" style="margin-bottom: 20px;">
+            <p>¿Cuántas medidas de caja deseas cotizar?</p>
+            <div style="display: flex; gap: 10px;">
+                <button type="button" onclick="generarPestanas(1)">1 Medida</button>
+                <button type="button" onclick="generarPestanas(2)">2 Medidas</button>
+                <button type="button" onclick="generarPestanas(3)">3 Medidas</button>
+            </div>
         </div>
-        <div style="flex: 1;">
-          <label for="sucursal">Sucursal:</label>
-          <input type="text" id="sucursal" placeholder="Ej: Córdoba" />
-        </div>
-      </div>
-      <div style="margin-top: 10px;">
-        <label for="material">Material:</label>
-        <select id="material">
-          <option value="" disabled selected>Selecciona material</option>
-          <option value="madera">Madera</option>
-          <option value="acrilico">Acrílico</option>
-        </select>
-      </div>
+
+        <!-- Contenedor de pestañas dinámicas -->
+        <div id="contenedorPestanas"></div>
+
+        <!-- Contenedor para las sugerencias de escalas de precios -->
+        <div id="sugerenciaEscalas" style="margin-top: 20px; font-size: 14px; color: #555;"></div>
+
+        <!-- Contenedor para mostrar el resultado final -->
+        <div id="resultadoFinal" style="margin-top: 20px;"></div>
+       
+        <button id="exportarPDF" style="display: none; margin-top: 10px;" onclick="exportarPDF()">Exportar Resumen</button>
+
+        
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <p id="mensajeApaisado-1-${i}" style="display: none; color: gray; font-size: 12px; margin-top: 5px;">
+    Si quiere logo apaisado poner el lado de mayor longitud en altura.
 
-    <!-- Botón de selección de producto (simulando la captura) -->
-    <div style="text-align: center; margin-bottom: 10px;">
-      <button class="btn-gray">Seleccionar Producto</button>
-    </div>
+<!-- eliminar en caso de querer sacar el catalogo -->    
+<
+!-- Bloque Ver Catálogo -->
+<div id="verCatalogo" style="margin-top: 20px;">
+    <h2>Ver Catálogo</h2>
+    <button id="catalogoButton" onclick="irACatalogo()">Ir al Catálogo</button>
+</div>
+<!-- Hasta acá -->    
 
-    <!-- Tabla de productos -->
-    <table>
-      <thead>
-        <tr>
-          <th>Producto</th>
-          <th>Descripción</th>
-          <th>Cantidad</th>
-          <th>Precio Unit.</th>
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Fila de ejemplo -->
-        <tr>
-          <td><input type="text" placeholder="Nombre producto" /></td>
-          <td><input type="text" placeholder="Descripción breve" /></td>
-          <td><input type="number" min="1" value="1" /></td>
-          <td>$1000</td>
-          <td>$1000</td>
-        </tr>
-        <!-- Agrega tantas filas como necesites con JS o dinámicamente -->
-      </tbody>
-      <tfoot>
-        <tr>
-          <td colspan="4">Subtotal:</td>
-          <td>$1000</td>
-        </tr>
-        <tr>
-          <td colspan="4">IVA (21%):</td>
-          <td>$210</td>
-        </tr>
-        <tr>
-          <td colspan="4">Total:</td>
-          <td>$1210</td>
-        </tr>
-      </tfoot>
-    </table>
-
-    <!-- Botonera inferior -->
-    <div class="button-group">
-      <button class="btn-blue">Cargar Template</button>
-      <button class="btn-green">Importar/Exportar</button>
-      <button class="btn-gray">Volver</button>
-      <button class="btn-red">Validar</button>
-    </div>
-  </div>
-
-  <!-- Aquí incluirías tu script.js si lo deseas -->
-  <script src="script.js"></script>
+</p>
 </body>
 </html>

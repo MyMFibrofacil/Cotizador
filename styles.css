@@ -1,198 +1,123 @@
-/* Reset básico */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-/* Fuente y fondo general */
+/* Estilos generales */
 body {
     font-family: Arial, sans-serif;
-    background-color: #1a1a1a; /* Fondo más oscuro */
-    color: #f0f0f0;
+    margin: 20px;
+    background-color: #f8f9fa;
 }
 
-/* Contenedor principal */
 .container {
-    width: 95%;
-    max-width: 1200px;
-    margin: 20px auto;
-    background-color: #2b2b2b; /* Panel gris oscuro */
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
     padding: 20px;
-    border-radius: 6px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Títulos */
-h1, h2, h3 {
-    font-weight: normal;
-    margin-bottom: 15px;
-    color: #ffffff;
-}
-
-h1 {
-    text-align: center;
-}
-
-/* Subcontenedores */
-.subcontainer {
-    margin-bottom: 20px;
-    background-color: #1f1f1f; 
-    padding: 15px;
-    border-radius: 6px;
-}
-
-/* Labels e inputs */
-label {
+label, input, select, button {
     display: block;
-    margin-bottom: 6px;
-    font-weight: 600;
-    color: #ffffff;
-    font-size: 0.9rem;
-}
-
-input, select, textarea {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 12px;
-    border: 1px solid #4caf50; /* Borde verde */
-    background-color: #333333; 
-    color: #ffffff;
-    border-radius: 4px;
-    font-size: 0.9rem;
+    margin-bottom: 15px;
+    padding: 8px;
+    font-size: 1em;
 }
 
-input:focus, select:focus, textarea:focus {
-    outline: none;
-    border-color: #66bb6a; /* Verde un poco más claro */
-}
-
-/* Botones */
 button {
-    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
     border: none;
-    border-radius: 4px;
-    font-weight: 600;
     cursor: pointer;
-    margin-right: 10px;
-    font-size: 0.9rem;
+    padding: 10px;
+    font-size: 1em;
+    border-radius: 4px;
 }
 
-/* Botones de colores */
-.btn-red {
-    background-color: #d9534f;
-    color: #fff;
-}
-.btn-red:hover {
-    background-color: #c9302c;
+button:hover {
+    background-color: #0056b3;
 }
 
-.btn-blue {
-    background-color: #337ab7;
-    color: #fff;
-}
-.btn-blue:hover {
-    background-color: #2e6da4;
-}
-
-.btn-green {
-    background-color: #5cb85c;
-    color: #fff;
-}
-.btn-green:hover {
-    background-color: #4cae4c;
+.result {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-top: 20px;
+    color: #333;
 }
 
-.btn-gray {
-    background-color: #6c757d;
-    color: #fff;
-}
-.btn-gray:hover {
-    background-color: #5a6268;
-}
-
-/* Tabla */
-table {
+/* Estilos para tablas */
+table, .styled-table {
     width: 100%;
     border-collapse: collapse;
-    background-color: #2b2b2b;
     margin-top: 20px;
-    border-radius: 6px;
-    overflow: hidden; /* Para los bordes redondeados en el thead/tbody */
+    font-size: 14px;
 }
 
-thead {
-    background-color: #3d3d3d;
-}
-thead th {
-    padding: 12px 10px;
-    color: #f0f0f0;
-    text-align: center;
-    font-weight: 600;
-    font-size: 0.9rem;
-}
-
-tbody tr {
-    border-bottom: 1px solid #444;
-}
-tbody tr:nth-child(even) {
-    background-color: #353535;
-}
-tbody td {
+th, td, .styled-table th, .styled-table td {
+    border: 1px solid #ccc;
     padding: 10px;
-    color: #f0f0f0;
     text-align: center;
-    font-size: 0.9rem;
 }
 
-tfoot td {
-    padding: 12px 10px;
+th, .styled-table th {
+    background-color: #f2f2f2;
     font-weight: bold;
-    color: #fff;
+    text-transform: uppercase;
+}
+
+/* Estilo para filas de la tabla */
+tbody tr {
+    font-size: 14px;
+    background-color: #fff;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tbody tr:hover {
+    background-color: #eaeaea;
+    transition: background-color 0.3s ease;
+}
+
+/* Estilo para el pie de tabla */
+tfoot td {
+    font-size: 14px;
+    font-weight: bold;
+    border-top: 2px solid #000;
     text-align: right;
+    padding-top: 10px;
 }
 
-/* Botonera inferior */
-.button-group {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 20px;
+tfoot td.total-cell {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .container {
-        width: 95%;
-        padding: 10px;
-    }
-    .subcontainer {
-        padding: 10px;
-    }
-    table, thead, tbody, th, td, tr {
-        display: block;
-    }
-    thead {
-        display: none;
-    }
-    td {
-        text-align: left;
-        border: none;
-        position: relative;
-        padding-left: 50%;
-        margin-bottom: 10px;
-    }
-    td:before {
-        position: absolute;
-        left: 15px;
-        top: 10px;
-        white-space: nowrap;
-        color: #bbb;
-        font-weight: 600;
-    }
-    /* Ajusta los "content" según tus columnas */
-    tr td:nth-of-type(1):before { content: "Producto"; }
-    tr td:nth-of-type(2):before { content: "Descripción"; }
-    tr td:nth-of-type(3):before { content: "Cantidad"; }
-    tr td:nth-of-type(4):before { content: "Precio Unit."; }
-    tr td:nth-of-type(5):before { content: "Total"; }
+
+/* eliminar en caso de querer sacar el catalogo */
+#verCatalogo {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#verCatalogo h2 {
+    font-size: 1.5em;
+}
+
+#catalogoButton {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    font-size: 1em;
+    border-radius: 4px;
+}
+
+#catalogoButton:hover {
+    background-color: #0056b3;
 }
