@@ -61,7 +61,7 @@ body {
   /* Para los inputs numéricos más pequeños, podrías ajustar un width más acotado si lo deseas:
   */  
     input[type="number"] {
-    width: 860px; 
+    width: 98%; 
   }
 
     input:focus, select:focus, button:focus {
