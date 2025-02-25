@@ -1,123 +1,180 @@
-/* Estilos generales */
+/* --- Estilos generales (Tema oscuro) --- */
 body {
     font-family: Arial, sans-serif;
-    margin: 20px;
-    background-color: #f8f9fa;
-}
-
-.container {
-    max-width: 600px;
-    margin: 0 auto;
-    background: white;
+    margin: 0;
+    padding: 0;
+    background-color: #1c1c1c; /* Fondo global oscuro */
+    color: #f0f0f0;           /* Texto claro */
+  }
+  
+  .container {
+    max-width: 900px;
+    margin: 20px auto;
+    background-color: #2b2b2b; /* Fondo algo más claro que el body */
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-label, input, select, button {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
+  }
+  
+  h1 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #ffffff;
+    text-align: center;
+  }
+  
+  /* Consulta inicial */
+  .consulta-inicial {
+    margin-bottom: 20px;
+  }
+  
+  .consulta-inicial p {
+    margin-bottom: 10px;
+  }
+  
+  .botones-medidas {
+    display: flex;
+    gap: 10px;
+  }
+  
+  /* --- Estilos para labels, inputs y selects --- */
+  label {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    color: #f0f0f0;
+    font-weight: bold;
+    display: block;
+  }
+  
+  input, select, button {
     display: block;
     width: 100%;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     padding: 8px;
     font-size: 1em;
-}
-
-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-    padding: 10px;
-    font-size: 1em;
     border-radius: 4px;
-}
+    border: 1px solid #444;
+    background-color: #3a3a3a;
+    color: #f0f0f0;
+  }
+  
+  /* Para los inputs numéricos más pequeños, podrías ajustar un width más acotado si lo deseas:
+  */  
+    input[type="number"] {
+    width: 860px; 
+  }
 
-button:hover {
-    background-color: #0056b3;
-}
-
-.result {
-    font-size: 1.2em;
+    input:focus, select:focus, button:focus {
+    outline: none;
+    border-color: #777;
+  }
+  
+  /* --- Botones generales --- */
+  button {
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-transform: uppercase;
     font-weight: bold;
-    margin-top: 20px;
-    color: #333;
-}
-
-/* Estilos para tablas */
-table, .styled-table {
+    letter-spacing: 0.5px;
+    border: none; /* Para que no se vea el borde "doble" */
+  }
+  
+  button:hover {
+    background-color: #505050;
+  }
+  
+  /* --- Botón de exportar PDF (se muestra luego de calcular) --- */
+  #exportarPDF {
+    background-color: #28a745;
+    color: #fff;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  
+  #exportarPDF:hover {
+    background-color: #218838;
+  }
+  
+  /* --- Estilos de tabla en modo oscuro --- */
+  table, .styled-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
     font-size: 14px;
-}
-
-th, td, .styled-table th, .styled-table td {
-    border: 1px solid #ccc;
+    background-color: #2b2b2b; /* Fondo de la tabla */
+    color: #f0f0f0;
+  }
+  
+  th, td, .styled-table th, .styled-table td {
+    border: 1px solid #444;
     padding: 10px;
     text-align: center;
-}
-
-th, .styled-table th {
-    background-color: #f2f2f2;
+  }
+  
+  th, .styled-table th {
+    background-color: #3a3a3a; /* Encabezados un poco más claros */
     font-weight: bold;
     text-transform: uppercase;
-}
-
-/* Estilo para filas de la tabla */
-tbody tr {
-    font-size: 14px;
-    background-color: #fff;
-}
-
-tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-tbody tr:hover {
-    background-color: #eaeaea;
+  }
+  
+  tbody tr {
+    background-color: #2b2b2b; 
+  }
+  
+  tbody tr:nth-child(even) {
+    background-color: #242424; 
+  }
+  
+  tbody tr:hover {
+    background-color: #333; 
     transition: background-color 0.3s ease;
-}
-
-/* Estilo para el pie de tabla */
-tfoot td {
+  }
+  
+  /* Pie de tabla */
+  tfoot td {
     font-size: 14px;
     font-weight: bold;
-    border-top: 2px solid #000;
+    border-top: 2px solid #fff;
     text-align: right;
     padding-top: 10px;
-}
-
-tfoot td.total-cell {
+  }
+  
+  tfoot td.total-cell {
     font-size: 20px;
-    font-weight: bold;
-    color: #333;
-}
-
-
-/* eliminar en caso de querer sacar el catalogo */
-#verCatalogo {
-    max-width: 600px;
-    margin: 0 auto;
-    background: white;
+    color: #fff;
+  }
+  
+  /* --- Bloque "Ver Catálogo" --- */
+  #verCatalogo {
+    max-width: 900px;
+    margin: 20px auto;
+    background: #2b2b2b;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-#verCatalogo h2 {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
+  }
+  
+  #verCatalogo h2 {
     font-size: 1.5em;
-}
-
-#catalogoButton {
-    background-color: #007bff;
+    color: #fff;
+    text-align: center
+  }
+  
+  #catalogoButton {
+    background-color: #505050;
     color: white;
-    border: none;
-    cursor: pointer;
-    padding: 10px;
-    font-size: 1em;
-    border-radius: 4px;
-}
-
-#catalogoButton:hover {
+    font-weight: bold
+    ;
+  }
+  
+  #catalogoButton:hover {
     background-color: #0056b3;
-}
+  }
+
+  .tab-header {
+    padding: 10px;
+    background-color: #505050; /* Ajusta según tu preferencia */
+    cursor: pointer;
+    color: white; /* Forzamos el texto a blanco */
+    margin-bottom: 10px; /* Separación vertical de 10px */
+  }

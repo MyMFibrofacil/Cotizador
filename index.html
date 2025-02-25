@@ -18,18 +18,19 @@
         <!-- Consulta inicial -->
         <div id="consultaMedidas" style="margin-bottom: 20px;">
             <p>¿Cuántas medidas de caja deseas cotizar?</p>
-            <div style="display: flex; gap: 10px;">
-                <button type="button" onclick="generarPestanas(1)">1 Medida</button>
-                <button type="button" onclick="generarPestanas(2)">2 Medidas</button>
-                <button type="button" onclick="generarPestanas(3)">3 Medidas</button>
+            <select id="opcionesMedidas" onchange="manejarCambioMedidas()">
+                <option value="" disabled selected>Selecciona una opción</option>
+                <option value="1">1 Medida</option>
+                <option value="2">2 Medidas</option>
+                <option value="3">3 Medidas</option>
+              </select>
             </div>
-        </div>
 
         <!-- Contenedor de pestañas dinámicas -->
         <div id="contenedorPestanas"></div>
 
         <!-- Contenedor para las sugerencias de escalas de precios -->
-        <div id="sugerenciaEscalas" style="margin-top: 20px; font-size: 14px; color: #555;"></div>
+        <div id="sugerenciaEscalas" style="margin-top: 20px; font-size: 14px; color: #FFF;"></div>
 
         <!-- Contenedor para mostrar el resultado final -->
         <div id="resultadoFinal" style="margin-top: 20px;"></div>
@@ -43,7 +44,7 @@
     Si quiere logo apaisado poner el lado de mayor longitud en altura.
 
 <!-- eliminar en caso de querer sacar el catalogo -->    
-<
+
 !-- Bloque Ver Catálogo -->
 <div id="verCatalogo" style="margin-top: 20px;">
     <h2>Ver Catálogo</h2>
