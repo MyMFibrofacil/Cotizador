@@ -118,7 +118,7 @@ function generarSugerenciasPrecios(logosAgrupados) {
     }
 
     document.getElementById('sugerenciaEscalas').innerHTML = `
-        <p style="font-size: 14px; color: #555; margin-top: 10px;">
+        <p style="font-size: 14px; color: white; margin-top: 10px;">
             ${mensajes.join('<br><br>')}
         </p>
     `;
@@ -165,12 +165,16 @@ function calcularPrecioTotal(cantidadPestanas) {
                 return;
         }
 
-        let precioCajaTotal = precioCajaUnitario * cantidad;
+        // Aplica el descuento a precioCajaUnitario
         if (cantidad > 50) {
-            precioCajaTotal *= 0.94; // Descuento del 6%
+            precioCajaUnitario *= 0.94; // Descuento del 6% en el unitario
         }
-        totalCajas += precioCajaTotal;
 
+        // Luego calculas el total usando el precio unitario con descuento
+        let precioCajaTotal = precioCajaUnitario * cantidad
+
+        totalCajas += precioCajaTotal;
+        
         // Manejo del primer logo
         if (conLogo1) {
             const altoLogo1 = parseFloat(document.getElementById(`altoLogo-1-${i}`).value);
@@ -248,6 +252,7 @@ function calcularPrecioTotal(cantidadPestanas) {
     }
 
     const precioTotal = totalCajas + totalLogos;
+    
 
     // Mostrar el desglose de precios
     document.getElementById('resultadoFinal').innerHTML = `
