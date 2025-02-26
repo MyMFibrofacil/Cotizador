@@ -506,26 +506,6 @@ function togglePestana(index) {
     contenido.style.display = contenido.style.display === 'none' ? 'block' : 'none';
 }
 
-function getBase64ImageFromURL(url) {
-    return new Promise((resolve, reject) => {
-        var img = new Image();
-        img.setAttribute('crossOrigin', 'anonymous'); // Evitar problemas de CORS
-        img.onload = function() {
-            var canvas = document.createElement("canvas");
-            canvas.width = img.width;
-            canvas.height = img.height;
-            var ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0);
-            var dataURL = canvas.toDataURL("image/png");
-            resolve(dataURL);
-        };
-        img.onerror = function(error) {
-            reject(error);
-        };
-        img.src = url;
-    });
-}
-
 async function exportarPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
@@ -694,34 +674,6 @@ async function exportarPDF() {
                 y += 6; // Separación entre líneas
             });
         }
-    }
-    // ===== 7) CALCULAR POSICIONES PARA LAS IMÁGENES =====
-    const pageWidth2 = doc.internal.pageSize.getWidth();
-    const pageHeight2 = doc.internal.pageSize.getHeight();
-
-    const imageWidth = 70;  // 7 cm = 70 mm
-    const imageHeight = 70; // 7 cm = 70 mm
-    // Colocar las imágenes en la parte inferior dejando un margen:
-    const imageY = pageHeight2 - margin - imageHeight;
-    const imageX1 = margin; // esquina inferior izquierda
-    const imageX2 = pageWidth2 - margin - imageWidth; // esquina inferior derecha
-
-    // ===== 8) OBTENER LAS IMÁGENES Y AGREGARLAS AL PDF =====
-    // URL directa de Google Drive (cambia los id por los correspondientes)
-    const imageUrl1 = "https://raw.githubusercontent.com/MyMFibrofacil/Cotizador/main/WhatsApp.png";
-    // Para la segunda imagen, reemplaza 'TU_ID_DE_SEGUNDA_IMAGEN' por el id correspondiente
-    const imageUrl2 = "https://raw.githubusercontent.com/MyMFibrofacil/Cotizador/main/Catalogo Cajas.pdf";
-    
-    try {
-        const imgData1 = await getBase64ImageFromURL(imageUrl1);
-        const imgData2 = await getBase64ImageFromURL(imageUrl2);
-        
-        // Agregar la primera imagen en la esquina inferior izquierda
-        doc.addImage(imgData1, 'PNG', imageX1, imageY, imageWidth, imageHeight);
-        // Agregar la segunda imagen en la esquina inferior derecha
-        doc.addImage(imgData2, 'PNG', imageX2, imageY, imageWidth, imageHeight);
-    } catch (err) {
-        console.error("Error al cargar las imágenes: ", err);
     }
 
     // ===== 7) GUARDAR PDF =====
