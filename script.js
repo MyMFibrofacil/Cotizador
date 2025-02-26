@@ -708,9 +708,9 @@ async function exportarPDF() {
 
     // ===== 8) OBTENER LAS IMÁGENES Y AGREGARLAS AL PDF =====
     // URL directa de Google Drive (cambia los id por los correspondientes)
-    const imageUrl1 = "https://drive.google.com/uc?export=download&id=1e4osoSArRQIr5SgLtUIddSxB0mLKwwVN";
+    const imageUrl1 = "https://raw.githubusercontent.com/MyMFibrofacil/Cotizador/main/WhatsApp.png";
     // Para la segunda imagen, reemplaza 'TU_ID_DE_SEGUNDA_IMAGEN' por el id correspondiente
-    const imageUrl2 = "https://drive.google.com/file/d/1iPvnvjqTSpUFxRQAtJcsjX8GSyJuQ2dY/view?usp=sharing";
+    const imageUrl2 = "https://raw.githubusercontent.com/MyMFibrofacil/Cotizador/main/Catalogo Cajas.pdf";
     
     try {
         const imgData1 = await getBase64ImageFromURL(imageUrl1);
