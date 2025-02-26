@@ -178,3 +178,10 @@ body {
     color: white; /* Forzamos el texto a blanco */
     margin-bottom: 10px; /* Separación vertical de 10px */
   }
+
+
+  /* Preguntas que se encuentran adentro de logos */
+  .logo-fields {
+    margin-left: 2em; /* Indentado */
+    font-size: 0.9em; /* Letra un poco más pequeña */
+  }
