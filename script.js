@@ -809,3 +809,8 @@ function cargarParametrosExcel() {
     }
     return preciosCajas;
   }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    cargarParametrosExcel();
+  });
+  
