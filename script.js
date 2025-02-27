@@ -5,7 +5,6 @@ Precio_simple_sinsoga=3927
 Precio_doble=6830
 Precio_triple=9280
 Precio_cuadruple=11590
-Precio_quintuple=14641
 Precio_sextuple=17383
 Precio_gin=8640
 Precio_magnum_x3L=9350
@@ -131,141 +130,201 @@ function calcularPrecioTotal(cantidadPestanas) {
     let totalCajas = 0;
     let totalLogos = 0;
     let detallePrecios = '';
-    // Declaramos el objeto para agrupar los logos según sus dimensiones
-    let logosAgrupados = {};
-  
-    // Recorremos cada pestaña (cada medida)
+    const logosAgrupados = {};
+
     for (let i = 1; i <= cantidadPestanas; i++) {
-      // Obtener valores de la caja
-      const tipoMaterial = document.getElementById(`tipoMaterial-${i}`).value;
-      const tipoCaja = document.getElementById(`tipoCaja-${i}`).value;
-      const cantidad = parseInt(document.getElementById(`cantidad-${i}`).value, 10);
-  
-      // Recuperar el precio unitario de la caja desde los parámetros cargados (Hoja 1 del Excel)
-      const precioCajaUnitarioOriginal =
-        window.parametrosPrecios &&
-        window.parametrosPrecios[tipoMaterial] &&
-        window.parametrosPrecios[tipoMaterial][tipoCaja]
-          ? window.parametrosPrecios[tipoMaterial][tipoCaja]
-          : 0;
-  
-      if (!precioCajaUnitarioOriginal) {
-        alert(
-          `No se encontró precio para ${tipoMaterial} y ${tipoCaja} en los parámetros.`
-        );
-        return;
-      }
-  
-      // Aplicar descuento del 6% si la cantidad es mayor a 50
-      const precioCajaUnitario =
-        cantidad > 50 ? precioCajaUnitarioOriginal * 0.94 : precioCajaUnitarioOriginal;
-      const precioCajaTotal = precioCajaUnitario * cantidad;
-      totalCajas += precioCajaTotal;
-  
-      detallePrecios += `
+        const tipoMaterial = document.getElementById(`tipoMaterial-${i}`).value;
+        const tipoCaja = document.getElementById(`tipoCaja-${i}`).value;
+        const cantidad = parseInt(document.getElementById(`cantidad-${i}`).value);
+        const conLogo1 = document.getElementById(`conLogo-1-${i}`).value === 'si';
+        const conLogo2 = document.getElementById(`conLogo-2-${i}`).value === 'si';
+
+        if (!tipoMaterial || !tipoCaja || !cantidad || 
+            (conLogo1 && (!document.getElementById(`altoLogo-1-${i}`).value || !document.getElementById(`anchoLogo-1-${i}`).value)) || 
+            (conLogo2 && (!document.getElementById(`altoLogo-2-${i}`).value || !document.getElementById(`anchoLogo-2-${i}`).value))) {
+            alert('Por favor, completa todos los campos en la pestaña Medida ' + i);
+            return;
+        }
+
+        // Calcular el precio de las cajas
+        let precioCajaUnitario = 0;
+        switch (tipoCaja) {
+            case 'simple': precioCajaUnitario = Precio_simple; break;
+            case 'simple_sinsoga': precioCajaUnitario = Precio_simple_sinsoga; break;
+            case 'simple_calada': precioCajaUnitario = Precio_simple_calada; break;
+            case 'doble': precioCajaUnitario = Precio_doble; break;
+            case 'triple': precioCajaUnitario = Precio_triple; break;
+            case 'cuadruple': precioCajaUnitario = Precio_cuadruple; break;
+            case 'quintuple': precioCajaUnitario = Precio_quintuple; break;
+            case 'sextuple': precioCajaUnitario = Precio_sextuple; break;
+            case 'gin': precioCajaUnitario = Precio_gin; break;
+            case 'magnum_x3L': precioCajaUnitario = Precio_magnum_x3L; break;
+            case 'magnum': precioCajaUnitario = Precio_magnum; break;
+            default:
+                alert('El tipo de caja seleccionado no es válido en la pestaña Medida ' + i);
+                return;
+        }
+
+        // Aplica el descuento a precioCajaUnitario
+        if (cantidad > 50) {
+            precioCajaUnitario *= 0.94; // Descuento del 6% en el unitario
+        }
+
+        // Luego calculas el total usando el precio unitario con descuento
+        let precioCajaTotal = precioCajaUnitario * cantidad
+
+        totalCajas += precioCajaTotal;
+        
+        // =============== MANEJO DEL PRIMER LOGO ===============
+        if (conLogo1) {
+            let altoLogo1, anchoLogo1;
+
+            // Si es la segunda medida (o tercera) y se marcó que es igual al primer logo de la Medida 1
+            const selectIgualLogo1 = document.getElementById(`igualLogo1Medida1-${i}`);
+            if (i > 1 && selectIgualLogo1 && selectIgualLogo1.value === 'si') {
+                // Tomar las dimensiones del primer logo de la Medida 1
+                altoLogo1 = parseFloat(document.getElementById(`altoLogo-1-1`).value);
+                anchoLogo1 = parseFloat(document.getElementById(`anchoLogo-1-1`).value);
+            } else {
+                // Tomar las dimensiones de la propia pestaña
+                altoLogo1 = parseFloat(document.getElementById(`altoLogo-1-${i}`).value);
+                anchoLogo1 = parseFloat(document.getElementById(`anchoLogo-1-${i}`).value);
+            }
+
+            if (!altoLogo1 || !anchoLogo1) {
+                alert('Faltan las dimensiones del primer logo en la Medida ' + i);
+                return;
+            }
+
+            // Calcula el área y construye un key para agrupar
+            const areaLogo1 = Math.max(altoLogo1 * anchoLogo1, 2700);
+            const medidaLogo1 = `Logo ( ${altoLogo1}x${anchoLogo1} )`;
+
+            // Suma en el objeto de logos agrupados
+            if (!logosAgrupados[medidaLogo1]) {
+                logosAgrupados[medidaLogo1] = { areaLogo: areaLogo1, cantidad: 0 };
+            }
+            logosAgrupados[medidaLogo1].cantidad += cantidad;
+        }
+
+        // =============== MANEJO DEL SEGUNDO LOGO ===============
+        if (conLogo2) {
+            let altoLogo2, anchoLogo2;
+
+            // Si es la segunda medida (o tercera) y se marcó que es igual al segundo logo de la Medida 1
+            const selectIgualLogo2 = document.getElementById(`igualLogo2Medida1-${i}`);
+            if (i > 1 && selectIgualLogo2 && selectIgualLogo2.value === 'si') {
+                // Tomar las dimensiones del segundo logo de la Medida 1
+                altoLogo2 = parseFloat(document.getElementById(`altoLogo-2-1`).value);
+                anchoLogo2 = parseFloat(document.getElementById(`anchoLogo-2-1`).value);
+            } else {
+                // Tomar las dimensiones de la propia pestaña
+                altoLogo2 = parseFloat(document.getElementById(`altoLogo-2-${i}`).value);
+                anchoLogo2 = parseFloat(document.getElementById(`anchoLogo-2-${i}`).value);
+            }
+
+            if (!altoLogo2 || !anchoLogo2) {
+                alert('Faltan las dimensiones del segundo logo en la Medida ' + i);
+                return;
+            }
+
+            // Calcula el área y construye un key para agrupar
+            const areaLogo2 = Math.max(altoLogo2 * anchoLogo2, 2700);
+            const medidaLogo2 = `Logo ( ${altoLogo2}x${anchoLogo2} )`;
+
+            // Suma en el objeto de logos agrupados
+            if (!logosAgrupados[medidaLogo2]) {
+                logosAgrupados[medidaLogo2] = { areaLogo: areaLogo2, cantidad: 0 };
+            }
+            logosAgrupados[medidaLogo2].cantidad += cantidad;
+        }
+
+        // Agregar detalle de precios para cajas
+        detallePrecios += `
         <tr>
-          <td>Caja ${tipoCaja.charAt(0).toUpperCase() + tipoCaja.slice(1)}</td>
-          <td>${tipoMaterial}</td>
-          <td>${cantidad}</td>
-          <td>$${precioCajaUnitario.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</td>
-          <td>$${precioCajaTotal.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</td>
+            <td style="text-align: center;">Caja ${tipoCaja.charAt(0).toUpperCase() + tipoCaja.slice(1).replace('_', ' ')}</td>
+            <td style="text-align: center;">${tipoMaterial.charAt(0).toUpperCase() + tipoMaterial.slice(1).replace('_', ' ')}</td>
+            <td style="text-align: center;">${cantidad}</td>
+            <td style="text-align: center;">$${precioCajaUnitario.toLocaleString('es-AR', { minimumFractionDigits: 0 })}</td>
+            <td style="text-align: right;">$${precioCajaTotal.toLocaleString('es-AR', { minimumFractionDigits: 0 })}</td>
         </tr>
-      `;
-  
-      // Procesar el logo (se asume un solo logo por pestaña)
-      const conLogo = document.getElementById(`conLogo-1-${i}`).value === 'si';
-      if (conLogo) {
-        let altoLogo = parseFloat(document.getElementById(`altoLogo-1-${i}`).value);
-        let anchoLogo = parseFloat(document.getElementById(`anchoLogo-1-${i}`).value);
-        if (!altoLogo || !anchoLogo) {
-          alert(`Faltan dimensiones para el logo en la pestaña ${i}`);
-          return;
-        }
-  
-        // Calcular el área (mínimo 2700 mm²)
-        const areaLogo = Math.max(altoLogo * anchoLogo, 2700);
-        // Crear una clave única para agrupar logos con las mismas dimensiones
-        const medidaLogo = `Logo (${altoLogo}x${anchoLogo})`;
-  
-        // Si el grupo no existe, se crea; si existe, se suma la cantidad
-        if (!logosAgrupados[medidaLogo]) {
-          logosAgrupados[medidaLogo] = { areaLogo: areaLogo, cantidad: 0 };
-        }
-        logosAgrupados[medidaLogo].cantidad += cantidad;
-      }
+        `;
     }
-  
-    // Calcular precios para cada grupo de logos
+
+    // Calcular precios de los logos agrupados
     for (const medida in logosAgrupados) {
-      const { areaLogo, cantidad } = logosAgrupados[medida];
-      let factorEscala = 1;
-      if (cantidad === 1) {
-        factorEscala = 1.6;
-      } else if (cantidad >= 2 && cantidad <= 10) {
-        factorEscala = 1.3;
-      } else if (cantidad >= 11 && cantidad <= 20) {
-        factorEscala = 1.05;
-      } else if (cantidad >= 21 && cantidad <= 50) {
-        factorEscala = 1;
-      } else if (cantidad >= 51 && cantidad <= 100) {
-        factorEscala = 0.95;
-      } else if (cantidad >= 101 && cantidad <= 500) {
-        factorEscala = 0.9;
-      } else if (cantidad > 500) {
-        factorEscala = 0.85;
-      }
-      // Recuperar el precio base para los logos desde los parámetros (Hoja 2 del Excel)
-      const precioLogoBase = window.parametrosLogos ? window.parametrosLogos.precioLogoBase : 0;
-      const costoLogoUnitario = areaLogo * precioLogoBase * factorEscala;
-      const totalLogoMedida = costoLogoUnitario * cantidad;
-      totalLogos += totalLogoMedida;
-  
-      detallePrecios += `
+        const { areaLogo, cantidad } = logosAgrupados[medida];
+        let precioLogoBase = areaLogo * Precio_Logo;
+
+        // Determinar el factor de escala según la cantidad agrupada
+        let factorEscala = 1;
+        if (cantidad === 1) {
+            factorEscala = 1.6;
+        } else if (cantidad >= 2 && cantidad <= 10) {
+            factorEscala = 1.3;
+        } else if (cantidad >= 11 && cantidad <= 20) {
+            factorEscala = 1.05;
+        } else if (cantidad >= 21 && cantidad <= 50) {
+            factorEscala = 1;
+        } else if (cantidad >= 51 && cantidad <= 100) {
+            factorEscala = 0.95;
+        } else if (cantidad >= 101 && cantidad <= 500) {
+            factorEscala = 0.9;
+        } else if (cantidad > 500) {
+            factorEscala = 0.85;
+        }
+
+        const costoLogoUnitario = precioLogoBase * factorEscala;
+        const totalLogoMedida = costoLogoUnitario * cantidad;
+        totalLogos += totalLogoMedida;
+
+        detallePrecios += `
         <tr>
-          <td style="text-align: center;">${medida}</td>
-          <td style="text-align: center;">N/A</td>
-          <td style="text-align: center;">${cantidad}</td>
-          <td style="text-align: center;">$${costoLogoUnitario.toLocaleString('es-AR', { minimumFractionDigits: 0 })}</td>
-          <td style="text-align: right;">$${totalLogoMedida.toLocaleString('es-AR', { minimumFractionDigits: 0 })}</td>
+            <td style="text-align: center;">${medida}</td>
+            <td style="text-align: center;">N/A</td>
+            <td style="text-align: center;">${cantidad}</td>
+            <td style="text-align: center;">$${costoLogoUnitario.toLocaleString('es-AR', { minimumFractionDigits: 0 })}</td>
+            <td style="text-align: right;">$${totalLogoMedida.toLocaleString('es-AR', { minimumFractionDigits: 0 })}</td>
         </tr>
-      `;
+        `;
     }
-  
+
     const precioTotal = totalCajas + totalLogos;
-  
-    // Mostrar el detalle y el total en el elemento con id "resultadoFinal"
+    
+
+    // Mostrar el desglose de precios
     document.getElementById('resultadoFinal').innerHTML = `
-      <table>
+    <table>
         <thead>
-          <tr>
-            <th>Concepto</th>
-            <th>Tipo de Tapa</th>
-            <th>Cantidad</th>
-            <th>Unitario</th>
-            <th>Total</th>
-          </tr>
+            <tr>
+                <th>Concepto</th>
+                <th>Tipo de Tapa</th>
+                <th>Cantidad</th>
+                <th>Unitario</th>
+                <th>Total</th>
+            </tr>
         </thead>
         <tbody>
-          ${detallePrecios}
+            ${detallePrecios}
         </tbody>
         <tfoot>
-          <tr>
-            <td colspan="4" style="text-align: right; padding-top: 14px;">Total</td>
-            <td class="total-cell" style="padding-top: 14px;">$${precioTotal.toLocaleString('es-AR', { maximumFractionDigits: 0 })} + IVA</td>
-          </tr>
+            <tr>
+                <td colspan="4" style="text-align: right; padding-top: 14px;">Total</td>
+                <td class="total-cell" style="padding-top: 14px;">$${precioTotal.toLocaleString('es-AR', { minimumFractionDigits: 0 })} + IVA</td>
+            </tr>
         </tfoot>
-      </table>
+    </table>
     `;
-  
+
     // Mostrar el botón de exportar PDF
     const botonExportar = document.getElementById('exportarPDF');
     if (botonExportar) {
-      botonExportar.style.display = 'block';
+        botonExportar.style.display = 'block';
     }
-  
-    // Generar las sugerencias de precios para los logos agrupados
+
+    // Llamar a la función para generar sugerencias
     generarSugerenciasPrecios(logosAgrupados);
-  }
+}
 
 
 // Función para generar dinámicamente las pestañas según la cantidad seleccionada
@@ -749,68 +808,3 @@ function copiarLogoMedida1(index) {
         inputAncho.value = '';
     }
 }
-
-//Carga de Datos a traves de hoja Parametros//
-
-function cargarParametrosExcel() {
-    fetch('https://raw.githubusercontent.com/MyMFibrofacil/Cotizador/main/Parametros.xlsx')
-      .then(response => response.arrayBuffer())
-      .then(data => {
-        const workbook = XLSX.read(data, { type: 'array' });
-  
-        // Procesar la Hoja 1: Precios de cajas
-        const hoja1 = workbook.Sheets[workbook.SheetNames[0]];
-        // Convertimos la hoja a un arreglo de arreglos
-        const datosHoja1 = XLSX.utils.sheet_to_json(hoja1, { header: 1 });
-        
-        // Procesar la Hoja 2: Parámetros de logos
-        const hoja2 = workbook.Sheets[workbook.SheetNames[1]];
-        // Extraer valores de celdas específicas:
-        const valor1mm2 = hoja2["C3"] ? hoja2["C3"].v : null;
-        const precioMarceloTola = hoja2["D3"] ? hoja2["D3"].v : null;
-        const precioLogoBase = hoja2["E3"] ? hoja2["E3"].v : null;
-  
-        // Puedes almacenar estos datos en variables globales o en un objeto para usarlos luego
-        window.parametrosPrecios = procesarDatosHoja1(datosHoja1);
-        window.parametrosLogos = {
-          valor1mm2: valor1mm2,
-          precioMarceloTola: precioMarceloTola,
-          precioLogoBase: precioLogoBase
-        };
-  
-        console.log('Parámetros de cajas:', window.parametrosPrecios);
-        console.log('Parámetros de logos:', window.parametrosLogos);
-        
-        // Aquí podrías llamar a una función de inicialización para habilitar el resto de la app
-        inicializarCotizador();
-      })
-      .catch(error => {
-        console.error('Error al cargar el Excel:', error);
-      });
-  }
-  
-  function procesarDatosHoja1(datos) {
-    // Asumimos que la primera fila es el encabezado, por lo que se comienza en la segunda fila
-    const preciosCajas = {};
-  
-    // Recorremos cada fila (a partir de la fila 1, si la fila 0 es el encabezado)
-    for (let i = 1; i < datos.length; i++) {
-      const fila = datos[i];
-      // Recordar que los índices son 0: A, 1: B, 2: C, 3: D...
-      const tipoMaterial = fila[1]; // Columna B
-      const medidaCaja = fila[2];   // Columna C
-      const precio = fila[3];       // Columna D
-  
-      // Puedes organizar los datos en un objeto, por ejemplo:
-      if (!preciosCajas[tipoMaterial]) {
-        preciosCajas[tipoMaterial] = {};
-      }
-      preciosCajas[tipoMaterial][medidaCaja] = precio;
-    }
-    return preciosCajas;
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    cargarParametrosExcel();
-  });
-  
