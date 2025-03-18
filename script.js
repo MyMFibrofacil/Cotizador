@@ -1,14 +1,14 @@
 //Variables a actualizar
-Precio_simple=4485
-Precio_simple_calada=5655
-Precio_simple_sinsoga=3927
-Precio_doble=6830
-Precio_triple=9280
-Precio_cuadruple=11590
-Precio_sextuple=17383
-Precio_gin=8640
-Precio_magnum_x3L=9350
-Precio_magnum=6485
+Precio_simple=4755
+//Precio_simple_calada=5655
+Precio_simple_sinsoga=4162
+Precio_doble=7240
+Precio_triple=9836
+Precio_cuadruple=12286
+Precio_sextuple=18430
+Precio_gin=9160
+Precio_magnum_x3L=9911
+Precio_magnum=6875
 // Define el precio base por mm² del logo
 const Precio_Logo = 0.3788 * 1.1
 
