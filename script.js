@@ -16,8 +16,8 @@ const Precio_Logo = 0.3788 * 1.1
 //Las cajas ranuradas y acrilicas hay que habilitarlas
 const opcionesCajas = {
    acrilico: [
-       { value: 'simple', label: 'Simple' },
-       { value: 'doble', label: 'Doble' }
+     //  { value: 'simple', label: 'Simple' },
+     //  { value: 'doble', label: 'Doble' }
     ],
     enchapado_pino: [
         { value: 'simple', label: 'Simple' },
@@ -808,4 +808,5 @@ function copiarLogoMedida1(index) {
         inputAncho.value = '';
     }
 }
+
 
