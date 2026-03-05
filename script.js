@@ -10,7 +10,7 @@ Precio_gin=9160
 Precio_magnum_x3L=9911
 Precio_magnum=6875
 // Define el precio base por mm² del logo
-const Precio_Logo = 0.3788 * 1.1
+const Precio_Logo = 0.43 
 
 // Opciones de cajas según el material
 //Las cajas ranuradas y acrilicas hay que habilitarlas
@@ -808,5 +808,6 @@ function copiarLogoMedida1(index) {
         inputAncho.value = '';
     }
 }
+
 
 
