@@ -1,813 +1,799 @@
-//Variables a actualizar
-Precio_simple=4755
-//Precio_simple_calada=5655
-Precio_simple_sinsoga=4162
-Precio_doble=7240
-Precio_triple=9836
-Precio_cuadruple=12286
-Precio_sextuple=18430
-Precio_gin=9160
-Precio_magnum_x3L=9911
-Precio_magnum=6875
-// Define el precio base por mm² del logo
-const Precio_Logo = 0.43 
+﻿(() => {
+  const STORAGE_KEY = "tola_pricing_v1";
+  const PRICE_PASSWORD = "Tola1234";
+  const PHOTO_PRICING_PASSWORD = "Pablo.4268";
 
-// Opciones de cajas según el material
-//Las cajas ranuradas y acrilicas hay que habilitarlas
-const opcionesCajas = {
-   acrilico: [
-     //  { value: 'simple', label: 'Simple' },
-     //  { value: 'doble', label: 'Doble' }
-    ],
-    enchapado_pino: [
-        { value: 'simple', label: 'Simple' },
-    //    { value: 'simple_calada', label: 'Simple Calada' },
-        { value: 'simple_sinsoga', label: 'Simple Sin Soga' },
-        { value: 'doble', label: 'Doble' },
-        { value: 'triple', label: 'Triple' },
-        { value: 'cuadruple', label: 'Cuádruple' },
-        { value: 'cuadruple', label: 'Quintuple' },
-        { value: 'sextuple', label: 'Séxtuple' },
-        { value: 'gin', label: 'Gin' },
-        { value: 'magnum_x3L', label: 'Magnum x3L' },
-        { value: 'magnum', label: 'Magnum x1.5L' }
+  const DEFAULT_PRICING = {
+    valor_mm2: 0.41668,
+    area_min_mm2: 2700,
+    factor_qr: 1.2,
+    margen_cliente_pct: 10,
+    descuento_caja_mas_50_pct: 6,
+    modelos_precio: {
+      simple: 4755,
+      simple_sinsoga: 4162,
+      doble: 7240,
+      triple: 9836,
+      cuadruple: 12286,
+      quintuple: 15000,
+      sextuple: 18430,
+      gin: 9160,
+      magnum_x3l: 9911,
+      magnum: 6875
+    },
+    escalas: [
+      { min: 1, max: 1, factor: 1.6 },
+      { min: 2, max: 10, factor: 1.3 },
+      { min: 11, max: 20, factor: 1.05 },
+      { min: 21, max: 50, factor: 1.0 },
+      { min: 51, max: 100, factor: 0.95 },
+      { min: 101, max: 500, factor: 0.9 },
+      { min: 501, max: 1000, factor: 0.85 },
+      { min: 1001, max: Infinity, factor: 0.8 }
     ]
-};
+  };
 
-const limitesAnchoLogo = {
+  const MODEL_OPTIONS = [
+    { value: "simple", label: "Simple" },
+    { value: "simple_sinsoga", label: "Simple Sin Soga" },
+    { value: "doble", label: "Doble" },
+    { value: "triple", label: "Triple" },
+    { value: "cuadruple", label: "Cuadruple" },
+    { value: "quintuple", label: "Quintuple" },
+    { value: "sextuple", label: "Sextuple" },
+    { value: "gin", label: "Gin" },
+    { value: "magnum_x3l", label: "Magnum x3L" },
+    { value: "magnum", label: "Magnum x1.5L" }
+  ];
+  const MAX_LOGO_WIDTH_BY_MODEL = {
     simple: 80,
+    simple_sinsoga: 80,
     doble: 160,
     triple: 210,
     cuadruple: 210,
-    quintuple:210,
+    quintuple: 210,
     sextuple: 210,
     gin: 160,
-    magnum_x3L: 210,
-    magnum: 80,
-    simple_sinsoga: 80
-};
-
-// Función para actualizar las opciones del tipo de caja según el tipo de material
-function actualizarOpcionesCajas(index) {
-    const tipoMaterial = document.getElementById(`tipoMaterial-${index}`).value;
-    const tipoCaja = document.getElementById(`tipoCaja-${index}`);
-
-    // Limpiar opciones actuales
-    tipoCaja.innerHTML = '<option value="" disabled selected>Selecciona un tipo de caja</option>';
-
-    // Agregar las nuevas opciones según el material
-    if (opcionesCajas[tipoMaterial]) {
-        opcionesCajas[tipoMaterial].forEach(opcion => {
-            const nuevaOpcion = document.createElement('option');
-            nuevaOpcion.value = opcion.value;
-            nuevaOpcion.textContent = opcion.label;
-            tipoCaja.appendChild(nuevaOpcion);
-        });
-    }
-}
-
-// Función para mostrar u ocultar los campos de medidas del logo
-function toggleLogoFields(index) {
-    const conLogo = document.getElementById(`conLogo-${index}`).value;
-    const logoFields = document.getElementById(`logoFields-${index}`);
-    logoFields.style.display = conLogo === 'si' ? 'block' : 'none';
-}
-
-// Agregar sugerencias para la siguiente escala de precios
-function generarSugerenciasPrecios(logosAgrupados) {
-    const escalas = [
-        { limite: 1, factor: 1.6 },
-        { limite: 10, factor: 1.3 },
-        { limite: 20, factor: 1.05 },
-        { limite: 50, factor: 1 },
-        { limite: 100, factor: 0.95 },
-        { limite: 500, factor: 0.9 },
-        { limite: 1000, factor: 0.85 },
-        { limite: Infinity, factor: 0.8 }
-    ];
-
-    let mensajes = [];
-
-    // Generar un mensaje único para cada grupo de logos agrupados
-    for (const medida in logosAgrupados) {
-        const { areaLogo, cantidad } = logosAgrupados[medida];
-
-        let siguienteEscalaMensaje = '';
-        for (let i = 0; i < escalas.length; i++) {
-            if (cantidad <= escalas[i].limite) {
-                const siguienteEscala = escalas[i + 1];
-                if (siguienteEscala) {
-                    const nuevoPrecioLogoUnitario = Math.round((areaLogo * Precio_Logo) * siguienteEscala.factor);
-                    siguienteEscalaMensaje = `
-                        Si pides más de ${escalas[i].limite}, 
-                        el precio por logo será de 
-                        <strong>$${nuevoPrecioLogoUnitario.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</strong>.
-                    `;
-                }
-                break;
-            }
-        }
-
-        // Crear un mensaje consolidado para el grupo de logos con la misma medida
-        mensajes.push(`Actualmente has pedido ${cantidad} logos de medida ${medida}. ${siguienteEscalaMensaje}`);
-    }
-
-    // Mostrar todos los mensajes en el contenedor
-    if (mensajes.length === 0) {
-        mensajes.push('No hay logos para mostrar sugerencias.');
-    }
-
-    document.getElementById('sugerenciaEscalas').innerHTML = `
-        <p style="font-size: 14px; color: white; margin-top: 10px;">
-            ${mensajes.join('<br><br>')}
-        </p>
-    `;
-}
-
-
-// Actualización de la función calcularPrecioTotal para incluir la sugerencia
-function calcularPrecioTotal(cantidadPestanas) {
-    let totalCajas = 0;
-    let totalLogos = 0;
-    let detallePrecios = '';
-    const logosAgrupados = {};
-
-    for (let i = 1; i <= cantidadPestanas; i++) {
-        const tipoMaterial = document.getElementById(`tipoMaterial-${i}`).value;
-        const tipoCaja = document.getElementById(`tipoCaja-${i}`).value;
-        const cantidad = parseInt(document.getElementById(`cantidad-${i}`).value);
-        const conLogo1 = document.getElementById(`conLogo-1-${i}`).value === 'si';
-        const conLogo2 = document.getElementById(`conLogo-2-${i}`).value === 'si';
-
-        if (!tipoMaterial || !tipoCaja || !cantidad || 
-            (conLogo1 && (!document.getElementById(`altoLogo-1-${i}`).value || !document.getElementById(`anchoLogo-1-${i}`).value)) || 
-            (conLogo2 && (!document.getElementById(`altoLogo-2-${i}`).value || !document.getElementById(`anchoLogo-2-${i}`).value))) {
-            alert('Por favor, completa todos los campos en la pestaña Medida ' + i);
-            return;
-        }
-
-        // Calcular el precio de las cajas
-        let precioCajaUnitario = 0;
-        switch (tipoCaja) {
-            case 'simple': precioCajaUnitario = Precio_simple; break;
-            case 'simple_sinsoga': precioCajaUnitario = Precio_simple_sinsoga; break;
-            case 'simple_calada': precioCajaUnitario = Precio_simple_calada; break;
-            case 'doble': precioCajaUnitario = Precio_doble; break;
-            case 'triple': precioCajaUnitario = Precio_triple; break;
-            case 'cuadruple': precioCajaUnitario = Precio_cuadruple; break;
-            case 'quintuple': precioCajaUnitario = Precio_quintuple; break;
-            case 'sextuple': precioCajaUnitario = Precio_sextuple; break;
-            case 'gin': precioCajaUnitario = Precio_gin; break;
-            case 'magnum_x3L': precioCajaUnitario = Precio_magnum_x3L; break;
-            case 'magnum': precioCajaUnitario = Precio_magnum; break;
-            default:
-                alert('El tipo de caja seleccionado no es válido en la pestaña Medida ' + i);
-                return;
-        }
-
-        // Aplica el descuento a precioCajaUnitario
-        if (cantidad > 50) {
-            precioCajaUnitario *= 0.94; // Descuento del 6% en el unitario
-        }
-
-        // Luego calculas el total usando el precio unitario con descuento
-        let precioCajaTotal = precioCajaUnitario * cantidad
-
-        totalCajas += precioCajaTotal;
-        
-        // =============== MANEJO DEL PRIMER LOGO ===============
-        if (conLogo1) {
-            let altoLogo1, anchoLogo1;
-
-            // Si es la segunda medida (o tercera) y se marcó que es igual al primer logo de la Medida 1
-            const selectIgualLogo1 = document.getElementById(`igualLogo1Medida1-${i}`);
-            if (i > 1 && selectIgualLogo1 && selectIgualLogo1.value === 'si') {
-                // Tomar las dimensiones del primer logo de la Medida 1
-                altoLogo1 = parseFloat(document.getElementById(`altoLogo-1-1`).value);
-                anchoLogo1 = parseFloat(document.getElementById(`anchoLogo-1-1`).value);
-            } else {
-                // Tomar las dimensiones de la propia pestaña
-                altoLogo1 = parseFloat(document.getElementById(`altoLogo-1-${i}`).value);
-                anchoLogo1 = parseFloat(document.getElementById(`anchoLogo-1-${i}`).value);
-            }
-
-            if (!altoLogo1 || !anchoLogo1) {
-                alert('Faltan las dimensiones del primer logo en la Medida ' + i);
-                return;
-            }
-
-            // Calcula el área y construye un key para agrupar
-            const areaLogo1 = Math.max(altoLogo1 * anchoLogo1, 2700);
-            const medidaLogo1 = `Logo ( ${altoLogo1}x${anchoLogo1} )`;
-
-            // Suma en el objeto de logos agrupados
-            if (!logosAgrupados[medidaLogo1]) {
-                logosAgrupados[medidaLogo1] = { areaLogo: areaLogo1, cantidad: 0 };
-            }
-            logosAgrupados[medidaLogo1].cantidad += cantidad;
-        }
-
-        // =============== MANEJO DEL SEGUNDO LOGO ===============
-        if (conLogo2) {
-            let altoLogo2, anchoLogo2;
-
-            // Si es la segunda medida (o tercera) y se marcó que es igual al segundo logo de la Medida 1
-            const selectIgualLogo2 = document.getElementById(`igualLogo2Medida1-${i}`);
-            if (i > 1 && selectIgualLogo2 && selectIgualLogo2.value === 'si') {
-                // Tomar las dimensiones del segundo logo de la Medida 1
-                altoLogo2 = parseFloat(document.getElementById(`altoLogo-2-1`).value);
-                anchoLogo2 = parseFloat(document.getElementById(`anchoLogo-2-1`).value);
-            } else {
-                // Tomar las dimensiones de la propia pestaña
-                altoLogo2 = parseFloat(document.getElementById(`altoLogo-2-${i}`).value);
-                anchoLogo2 = parseFloat(document.getElementById(`anchoLogo-2-${i}`).value);
-            }
-
-            if (!altoLogo2 || !anchoLogo2) {
-                alert('Faltan las dimensiones del segundo logo en la Medida ' + i);
-                return;
-            }
-
-            // Calcula el área y construye un key para agrupar
-            const areaLogo2 = Math.max(altoLogo2 * anchoLogo2, 2700);
-            const medidaLogo2 = `Logo ( ${altoLogo2}x${anchoLogo2} )`;
-
-            // Suma en el objeto de logos agrupados
-            if (!logosAgrupados[medidaLogo2]) {
-                logosAgrupados[medidaLogo2] = { areaLogo: areaLogo2, cantidad: 0 };
-            }
-            logosAgrupados[medidaLogo2].cantidad += cantidad;
-        }
-
-        // Agregar detalle de precios para cajas
-        detallePrecios += `
-        <tr>
-            <td style="text-align: center;">Caja ${tipoCaja.charAt(0).toUpperCase() + tipoCaja.slice(1).replace('_', ' ')}</td>
-            <td style="text-align: center;">${tipoMaterial.charAt(0).toUpperCase() + tipoMaterial.slice(1).replace('_', ' ')}</td>
-            <td style="text-align: center;">${cantidad}</td>
-            <td style="text-align: center;">$${precioCajaUnitario.toLocaleString('es-AR', { minimumFractionDigits: 0 })}</td>
-            <td style="text-align: right;">$${precioCajaTotal.toLocaleString('es-AR', { minimumFractionDigits: 0 })}</td>
-        </tr>
-        `;
-    }
-
-    // Calcular precios de los logos agrupados
-    for (const medida in logosAgrupados) {
-        const { areaLogo, cantidad } = logosAgrupados[medida];
-        let precioLogoBase = areaLogo * Precio_Logo;
-
-        // Determinar el factor de escala según la cantidad agrupada
-        let factorEscala = 1;
-        if (cantidad === 1) {
-            factorEscala = 1.6;
-        } else if (cantidad >= 2 && cantidad <= 10) {
-            factorEscala = 1.3;
-        } else if (cantidad >= 11 && cantidad <= 20) {
-            factorEscala = 1.05;
-        } else if (cantidad >= 21 && cantidad <= 50) {
-            factorEscala = 1;
-        } else if (cantidad >= 51 && cantidad <= 100) {
-            factorEscala = 0.95;
-        } else if (cantidad >= 101 && cantidad <= 500) {
-            factorEscala = 0.9;
-        } else if (cantidad > 500) {
-            factorEscala = 0.85;
-        }
-
-        const costoLogoUnitario = precioLogoBase * factorEscala;
-        const totalLogoMedida = costoLogoUnitario * cantidad;
-        totalLogos += totalLogoMedida;
-
-        detallePrecios += `
-        <tr>
-            <td style="text-align: center;">${medida}</td>
-            <td style="text-align: center;">N/A</td>
-            <td style="text-align: center;">${cantidad}</td>
-            <td style="text-align: center;">$${costoLogoUnitario.toLocaleString('es-AR', { minimumFractionDigits: 0 })}</td>
-            <td style="text-align: right;">$${totalLogoMedida.toLocaleString('es-AR', { minimumFractionDigits: 0 })}</td>
-        </tr>
-        `;
-    }
-
-    const precioTotal = totalCajas + totalLogos;
-    
-
-    // Mostrar el desglose de precios
-    document.getElementById('resultadoFinal').innerHTML = `
-    <table>
-        <thead>
-            <tr>
-                <th>Concepto</th>
-                <th>Tipo de Tapa</th>
-                <th>Cantidad</th>
-                <th>Unitario</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${detallePrecios}
-        </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="4" style="text-align: right; padding-top: 14px;">Total</td>
-                <td class="total-cell" style="padding-top: 14px;">$${precioTotal.toLocaleString('es-AR', { minimumFractionDigits: 0 })} + IVA</td>
-            </tr>
-        </tfoot>
-    </table>
-    `;
-
-    // Mostrar el botón de exportar PDF
-    const botonExportar = document.getElementById('exportarPDF');
-    if (botonExportar) {
-        botonExportar.style.display = 'block';
-    }
-
-    // Llamar a la función para generar sugerencias
-    generarSugerenciasPrecios(logosAgrupados);
-}
-
-
-// Función para generar dinámicamente las pestañas según la cantidad seleccionada
-//AGREGAR MAS TARDE cuando se incorpore acrilico, poner option value acrilico en el hueco del codigo
-//<option value="" disabled selected>Selecciona un material</option>Linea 280
-//<option value="acrilico">Acrílico</option>Linea 281
-//<option value="enchapado_pino">Enchapado de Pino</option>Linea282
-function generarPestanas(cantidad) {
-    const contenedorPestanas = document.getElementById('contenedorPestanas');
-    contenedorPestanas.innerHTML = ''; // Limpia el contenedor
-
-    for (let i = 1; i <= cantidad; i++) {
-        const pestana = document.createElement('div');
-        pestana.className = 'pestana';
-        // Aquí armamos la pestaña entera en `innerHTML`.
-        // Notar que para i=2, agregamos un bloque extra en los logoFields.
-        pestana.innerHTML = `
-            <div class="tab-header" onclick="togglePestana(${i})">
-                <strong>Medida ${i}</strong>
-            </div>
-            <div id="contenido-${i}" style="display: none; padding: 10px;">
-                <form>
-                    <label for="tipoMaterial-${i}">Tipo de Material para la Tapa:</label>
-                    <select id="tipoMaterial-${i}" required onchange="actualizarOpcionesCajas(${i})">
-                        <option value="" disabled selected>Selecciona un material</option>
-                        <option value="enchapado_pino">Enchapado de Pino</option>
-                    </select>
-
-                    <label for="tipoCaja-${i}">Tipo de Caja:</label>
-                    <select id="tipoCaja-${i}" required>
-                        <option value="" disabled selected>Selecciona un tipo de caja</option>
-                    </select>
-
-                    <label for="cantidad-${i}">Cantidad (unidades):</label>
-                    <input type="number" id="cantidad-${i}" min="1" required placeholder="Introduce la cantidad">
-
-                    <p style="font-size: 14px; color: #fff; margin-top: 10px;">
-                        Llevando más de <strong>50 cajas</strong>, obtienes un <strong>descuento del 6%</strong> en las cajas.
-                    </p>
-
-                    <!-- Primer Logo -->
-                    <div>
-                        <label for="conLogo-1-${i}">¿Deseas incluir un logo?</label>
-                        <select id="conLogo-1-${i}" onchange="toggleLogoFields(${i}, 1)">
-                            <option value="no" selected>No</option>
-                            <option value="si">Sí</option>
-                        </select>
-                    </div>
-
-                    <div id="logoFields-1-${i}" class="logo-fields" style="display: none;">
-
-                    ${
-                        i > 1
-                        ? `
-                          <!-- SOLO se muestra en la Medida 2 en adelante -->
-                          <label for="igualLogo1Medida1-${i}">¿Es igual al primer logo de la Medida 1?</label>
-                          <select id="igualLogo1Medida1-${i}" onchange="copiarLogoMedida1(${i})">
-                              <option value="no" selected>No</option>
-                              <option value="si">Sí</option>
-                          </select>
-                          `
-                        : ''
-                      }
-
-                        <label for="altoLogo-1-${i}">Altura del Logo (mm):</label>
-                        <input type="number" id="altoLogo-1-${i}" min="1" placeholder="Introduce la altura del logo">
-
-                        <label for="anchoLogo-1-${i}">Ancho del Logo (mm):</label>
-                        <input type="number" id="anchoLogo-1-${i}" min="1" placeholder="Introduce el ancho del logo">
-
-                        
-                    </div>
-
-                    <!-- Segundo Logo -->
-                    <div>
-                        <label for="conLogo-2-${i}">¿Deseas incluir otro logo?</label>
-                        <select id="conLogo-2-${i}" onchange="toggleLogoFields(${i}, 2)">
-                            <option value="no" selected>No</option>
-                            <option value="si">Sí</option>
-                        </select>
-                    </div>
-
-                    <div id="logoFields-2-${i}" class="logo-fields" style="display: none;">
-                        ${
-                            i > 1
-                            ? `
-                                <label for="igualLogo2Medida1-${i}">¿Es igual al segundo logo de la Medida 1?</label>
-                                <select id="igualLogo2Medida1-${i}" onchange="copiarLogo2Medida1(${i})">
-                                    <option value="no" selected>No</option>
-                                    <option value="si">Sí</option>
-                                </select>
-                            `
-                            : ''
-                        }
-
-                        <label for="altoLogo-2-${i}">Altura del Segundo Logo (mm):</label>
-                        <input type="number" id="altoLogo-2-${i}" min="1" placeholder="Introduce la altura del logo">
-
-                        <label for="anchoLogo-2-${i}">Ancho del Segundo Logo (mm):</label>
-                        <input type="number" id="anchoLogo-2-${i}" min="1" placeholder="Introduce el ancho del logo">
-                    </div>
-        `;
-        contenedorPestanas.appendChild(pestana);
-    }
-
-    // Botón para calcular precio
-    const botonCalcular = document.createElement('button');
-    botonCalcular.textContent = 'Calcular Precio Total';
-    botonCalcular.style.marginTop = '20px';
-    botonCalcular.onclick = () => calcularPrecioTotal(cantidad);
-    contenedorPestanas.appendChild(botonCalcular);
-
-    // Contenedor para mostrar el resultado final
-    const resultadoFinal = document.createElement('div');
-    resultadoFinal.id = 'resultadoFinal';
-    resultadoFinal.className = 'result';
-    contenedorPestanas.appendChild(resultadoFinal);
-
-    // Botón para exportar PDF
-    const botonExportarPDF = document.createElement('button');
-    botonExportarPDF.textContent = 'Exportar a PDF';
-    botonExportarPDF.id = 'exportarPDF';
-    botonExportarPDF.style.marginTop = '10px';
-    botonExportarPDF.style.display = 'none'; // Oculto inicialmente
-    botonExportarPDF.addEventListener("click", exportarPDF);
-    contenedorPestanas.appendChild(botonExportarPDF);
-
-    }
-
-//menu desplegable logos
-// Menú desplegable logos
-function toggleLogoFields(index, logoNumber) {
-    const conLogo = document.getElementById(`conLogo-${logoNumber}-${index}`).value;
-    const logoFields = document.getElementById(`logoFields-${logoNumber}-${index}`);
-
-    if (conLogo === 'si') {
-        logoFields.style.display = 'block';
-
-        // Crear un contenedor para el mensaje de error (control de ancho) si no existe
-        if (!document.getElementById(`mensajeError-${logoNumber}-${index}`)) {
-            const nuevoMensajeError = document.createElement('p');
-            nuevoMensajeError.id = `mensajeError-${logoNumber}-${index}`;
-            nuevoMensajeError.style.color = 'red';
-            nuevoMensajeError.style.fontSize = '12px';
-            nuevoMensajeError.style.marginTop = '5px';
-            logoFields.appendChild(nuevoMensajeError);
-        }
-
-        // Crear un contenedor para el mensaje apaisado si no existe
-        if (!document.getElementById(`mensajeApaisado-${logoNumber}-${index}`)) {
-            const mensajeApaisado = document.createElement('p');
-            mensajeApaisado.id = `mensajeApaisado-${logoNumber}-${index}`;
-            mensajeApaisado.textContent = 'Si quiere logo apaisado poner el lado de mayor longitud en altura.';
-            mensajeApaisado.style.color = 'white';
-            mensajeApaisado.style.fontSize = '12px';
-            mensajeApaisado.style.marginTop = '5px';
-            logoFields.appendChild(mensajeApaisado);
-        }
-
-        // Validar el ancho del logo en tiempo real
-        const anchoLogo = document.getElementById(`anchoLogo-${logoNumber}-${index}`);
-        anchoLogo.addEventListener('input', () => validarAnchoLogo(index, logoNumber));
-    } else {
-        logoFields.style.display = 'none';
-
-        // Limpiar el mensaje de error si el logo no se incluye
-        const mensajeError = document.getElementById(`mensajeError-${logoNumber}-${index}`);
-        if (mensajeError) mensajeError.textContent = '';
-
-        // Ocultar el mensaje apaisado si el logo no se incluye
-        const mensajeApaisado = document.getElementById(`mensajeApaisado-${logoNumber}-${index}`);
-        if (mensajeApaisado) mensajeApaisado.style.display = 'none';
-    }
-}
-
-// Función para alternar la visibilidad de las pestañas
-function togglePestana(index) {
-    const contenido = document.getElementById(`contenido-${index}`);
-    contenido.style.display = contenido.style.display === 'none' ? 'block' : 'none';
-}
-
-async function exportarPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    // ===== 1) TÍTULO EN NEGRO, SIN FONDO =====
-    const hoy = new Date();
-    const dia = String(hoy.getDate()).padStart(2, '0');
-    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
-    const anio = hoy.getFullYear();
-    const fechaFormateada = `${dia}/${mes}/${anio}`;
-
-    const margin = 20;      // Margen lateral
-    let y = 20;             // Coordenada vertical para imprimir
-
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(16);
-    doc.setTextColor(0, 0, 0); // Negro
-    doc.text(`Resumen de Cotización - Fecha: ${fechaFormateada}`, margin, y);
-
-    // ===== 2) OBTENER TABLA DEL DOM =====
-    const tabla = document.querySelector('#resultadoFinal table');
-    if (!tabla) {
-        alert("No hay datos para exportar.");
-        return;
-    }
-
-    // Configuraciones de tamaño
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const usableWidth = pageWidth - 2 * margin;
-    const rowHeight = 10;
-    const cellPadding = 3;
-
-    // 5 columnas: Concepto(20%), Tapa(30%), Cantidad(20%), Unitario(15%), Total(15%)
-    const columnWidths = [
-      usableWidth * 0.20,
-      usableWidth * 0.30,
-      usableWidth * 0.20,
-      usableWidth * 0.15,
-      usableWidth * 0.15
-    ];
-
-    // Avanzamos un poco la Y para la tabla
-    y += 10;
-    let x = margin;
-
-    // ===== 3) ENCABEZADO (THEAD) CON FONDO OSCURO Y TEXTO BLANCO =====
-    const theadRow = tabla.querySelector('thead tr');
-    if (!theadRow) {
-        alert("La tabla no tiene <thead>.");
-        return;
-    }
-    const headers = Array.from(theadRow.querySelectorAll('th')).map(th => th.textContent.trim());
-
-    // Fondo oscuro para encabezado
-    doc.setFillColor(45, 45, 45);    // Gris oscuro
-    doc.setDrawColor(255, 255, 255); // Bordes blancos (opcional)
-    doc.rect(x, y, usableWidth, rowHeight, 'FD');
-
-    // Texto en blanco
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(11);
-    doc.setTextColor(255, 255, 255);
-
-    let tmpX = x;
-    headers.forEach((header, i) => {
-        doc.text(header, tmpX + cellPadding, y + rowHeight - 3);
-        tmpX += columnWidths[i];
-    });
-    y += rowHeight;
-
-    // ===== 4) CUERPO (TBODY) CON FONDO BLANCO Y TEXTO NEGRO =====
-    const tbodyRows = tabla.querySelectorAll('tbody tr');
-    tbodyRows.forEach((row) => {
-        const cells = Array.from(row.querySelectorAll('td')).map(td => td.textContent.trim());
-
-        // Fondo blanco
-        doc.setFillColor(255, 255, 255);
-        doc.setDrawColor(200, 200, 200); // Bordes gris claro
-        doc.rect(x, y, usableWidth, rowHeight, 'FD');
-
-        // Texto negro
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10);
-        doc.setTextColor(0, 0, 0);
-
-        tmpX = x;
-        cells.forEach((cell, i) => {
-            // Alinear la última columna (Total) a la derecha
-            if (i === 4) {
-                const textWidth = doc.getTextWidth(cell);
-                doc.text(cell, tmpX + columnWidths[i] - textWidth - cellPadding, y + rowHeight - 3);
-            } else {
-                doc.text(cell, tmpX + cellPadding, y + rowHeight - 3);
-            }
-            tmpX += columnWidths[i];
-        });
-        y += rowHeight;
-    });
-
-    // ===== 5) PIE (TFOOT) PARA MOSTRAR "TOTAL" EN FONDO OSCURO =====
-    const tfootRows = tabla.querySelectorAll('tfoot tr');
-    tfootRows.forEach((row) => {
-        const cells = Array.from(row.querySelectorAll('td')).map(td => td.textContent.trim());
-
-        // Supongamos que la fila de total tiene 2 celdas: "Total" y "$XX.XXX + IVA"
-        if (cells.length === 2) {
-            const textoTotal = cells[0]; // "Total"
-            const importe = cells[1];    // "$63.073,92 + IVA", p.ej.
-
-            // Fondo oscuro
-            doc.setFillColor(45, 45, 45);
-            doc.setDrawColor(80, 80, 80);
-            doc.rect(x, y, usableWidth, rowHeight, 'FD');
-
-            // Texto blanco y en negrita
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(11);
-            doc.setTextColor(255, 255, 255);
-
-            tmpX = x;
-            // Dejar en blanco las 3 primeras columnas
-            for (let i = 0; i < 3; i++) {
-                tmpX += columnWidths[i];
-            }
-
-            // Columna 4 => la palabra "Total"
-            doc.text(textoTotal, tmpX + cellPadding, y + rowHeight - 3);
-            tmpX += columnWidths[3];
-
-            // Columna 5 => importe (alineado a la derecha)
-            const textWidth = doc.getTextWidth(importe);
-            doc.text(importe, tmpX + columnWidths[4] - textWidth - cellPadding, y + rowHeight - 3);
-
-            y += rowHeight;
-        }
-    });
-
-    // ===== 6) AGREGAR SUGERENCIAS DEBAJO DE LA TABLA =====
-    const sugerenciasElement = document.getElementById('sugerenciaEscalas');
-    if (sugerenciasElement) {
-        // Tomamos el texto sin etiquetas HTML (o con innerText).
-        let sugerenciasTexto = sugerenciasElement.innerText || sugerenciasElement.textContent;
-        sugerenciasTexto = sugerenciasTexto.trim();
-
-        if (sugerenciasTexto) {
-            // Ajustamos tipografía y color
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(10);
-            doc.setTextColor(0, 0, 0);
-
-            // Preparamos las líneas para no pasarnos de margen
-            const lineas = doc.splitTextToSize(sugerenciasTexto, usableWidth);
-
-            // Damos un pequeño salto de línea antes de las sugerencias
-            y += 10;
-
-            // Si ya estamos cerca del final de la hoja, pasamos a otra
-            if (y + lineas.length * 6 > doc.internal.pageSize.height - margin) {
-                doc.addPage();
-                y = margin;
-            }
-
-            // Imprimimos cada línea
-            lineas.forEach(linea => {
-                doc.text(linea, margin, y);
-                y += 6; // Separación entre líneas
-            });
-        }
-    }
-
-    // ===== 7) GUARDAR PDF =====
-    doc.save('Resumen_Cotizacion.pdf');
-}
-
-
-// Validar dimensiones del logo
-function validarAnchoLogo(index, logoNumber) {
-    const tipoCaja = document.getElementById(`tipoCaja-${index}`).value;
-    const anchoLogo = parseFloat(document.getElementById(`anchoLogo-${logoNumber}-${index}`).value);
-    const mensajeError = document.getElementById(`mensajeError-${logoNumber}-${index}`);
-
-    if (tipoCaja && limitesAnchoLogo[tipoCaja] && anchoLogo > limitesAnchoLogo[tipoCaja]) {
-        mensajeError.textContent = `El ancho del logo supera el máximo permitido para una caja de tipo ${tipoCaja} (${limitesAnchoLogo[tipoCaja]} mm).`;
-        mensajeError.style.color = 'red';
-    } else {
-        mensajeError.textContent = ''; // Limpiar el mensaje si no hay error
-    }
-}
-
-function validarAnchoAlturaLogo(index, logoNumber) {
-    const tipoCaja = document.getElementById(`tipoCaja-${index}`).value;
-    const alturaLogo = parseFloat(document.getElementById(`altoLogo-${logoNumber}-${index}`).value);
-    const mensajeError = document.getElementById(`mensajeError-${logoNumber}-${index}`);
-
-    // Validar altura
-    if (alturaLogo > 210) {
-        mensajeError.textContent = `La altura del logo no puede superar los 210 mm.`;
-        mensajeError.style.color = 'red';
-    } else {
-        mensajeError.textContent = ''; // Limpiar el mensaje si no hay error
-    }
-}
-
-// Agregar validación al evento `input` de los campos de ancho de ambos logos
-document.addEventListener('input', (event) => {
-    const element = event.target;
-    const matchAncho = element.id.match(/^anchoLogo-(\d+)-(\d+)$/);
-    const matchAlto = element.id.match(/^altoLogo-(\d+)-(\d+)$/);
-
-    if (matchAncho) {
-        const index = matchAncho[2];
-        const logoNumber = matchAncho[1];
-        validarAnchoLogo(index, logoNumber);
-    }
-
-    if (matchAlto) {
-        const index = matchAlto[2];
-        const logoNumber = matchAlto[1];
-        validarAnchoAlturaLogo(index, logoNumber);
-    }
-});
-//eliminar en caso de querer sacar el catalogo
-
-function irACatalogo() {
-    const urlCatalogo = "https://drive.google.com/open?id=1rcCjQ0zCi5gnys0-21lMRngtxc4lfoly&usp=drive_fs"; // Cambia este enlace por la URL real
-    window.open(urlCatalogo, "_blank");
-}
-
-function manejarCambioMedidas() {
-    const select = document.getElementById('opcionesMedidas');
-    const valor = parseInt(select.value, 10);
-  
-    // Si el usuario eligió una opción válida (1, 2 o 3), se generan las pestañas
-    if (!isNaN(valor)) {
-      generarPestanas(valor);
+    magnum_x3l: 210,
+    magnum: 80
+  };
+  const MAX_LOGO_HEIGHT = 210;
+
+  const parseNumber = (value) => {
+    if (typeof value === "number" && Number.isFinite(value)) return value;
+    if (value === null || value === undefined) return 0;
+    const raw = String(value).trim().replace(",", ".");
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+
+  const fmtARS = (value) => new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(parseNumber(value));
+
+  const round2 = (value) => Math.round((parseNumber(value) + Number.EPSILON) * 100) / 100;
+
+  const cloneDefaultPricing = () => ({
+    ...DEFAULT_PRICING,
+    modelos_precio: { ...DEFAULT_PRICING.modelos_precio },
+    escalas: DEFAULT_PRICING.escalas.map((e) => ({ ...e }))
+  });
+
+  function loadPricing() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return cloneDefaultPricing();
+      const parsed = JSON.parse(raw);
+      return {
+        ...cloneDefaultPricing(),
+        ...parsed,
+        modelos_precio: {
+          ...DEFAULT_PRICING.modelos_precio,
+          ...(parsed?.modelos_precio || {})
+        },
+        escalas: Array.isArray(parsed?.escalas) && parsed.escalas.length ? parsed.escalas : cloneDefaultPricing().escalas
+      };
+    } catch {
+      return cloneDefaultPricing();
     }
   }
 
-function copiarLogoMedida1(index) {
-    const selectIgual = document.getElementById(`igualLogo1Medida1-${index}`);
-    const inputAlto = document.getElementById(`altoLogo-1-${index}`);
-    const inputAncho = document.getElementById(`anchoLogo-1-${index}`);
-  
-    if (selectIgual.value === 'si') {
-      // Obtener los valores del primer logo en la Medida 1
-      const altoMedida1 = document.getElementById('altoLogo-1-1').value;
-      const anchoMedida1 = document.getElementById('anchoLogo-1-1').value;
-  
-      // Si ya se completó la Medida 1
-      if (altoMedida1 && anchoMedida1) {
-        inputAlto.value = altoMedida1;
-        inputAncho.value = anchoMedida1;
-        // Deshabilitar los inputs para evitar modificaciones
-        inputAlto.disabled = true;
-        inputAncho.disabled = true;
-      } else {
-        alert('Primero completa los datos del primer logo en la Medida 1.');
-        // Restablecer la selección a "no"
-        selectIgual.value = 'no';
+  function savePricing(cfg) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
+  }
+
+  let PRICING = loadPricing();
+  let modelIndex = 0;
+  let LAST_SUMMARY = {
+    detail: [],
+    costoTotal: 0,
+    finalTotal: 0
+  };
+  let photoPricingUnlocked = false;
+
+  function factorPorCantidad(total) {
+    const n = Math.max(1, parseNumber(total));
+    const escala = PRICING.escalas.find((e) => n >= e.min && n <= e.max) || PRICING.escalas[PRICING.escalas.length - 1];
+    return parseNumber(escala?.factor || 1);
+  }
+
+  function precioCajaUnitario(modelo, cantidad) {
+    const base = parseNumber(PRICING.modelos_precio?.[modelo] || 0);
+    const qty = Math.max(1, parseNumber(cantidad));
+    if (qty > 50) {
+      return base * (1 - parseNumber(PRICING.descuento_caja_mas_50_pct) / 100);
+    }
+    return base;
+  }
+
+  function precioLogoUnitario(logo, factorEmpresa) {
+    const ancho = Math.max(0, parseNumber(logo.ancho_mm));
+    const alto = Math.max(0, parseNumber(logo.alto_mm));
+    const area = Math.max(ancho * alto, parseNumber(PRICING.area_min_mm2));
+    let unit = area * parseNumber(PRICING.valor_mm2) * parseNumber(factorEmpresa || 1);
+    if (logo.es_qr) unit *= parseNumber(PRICING.factor_qr);
+    return round2(unit);
+  }
+
+  function modelLabel(modelValue) {
+    return MODEL_OPTIONS.find((m) => m.value === modelValue)?.label || modelValue;
+  }
+
+  function createModelOptionsHtml() {
+    return MODEL_OPTIONS.map((opt) => `<option value="${opt.value}">${opt.label}</option>`).join("");
+  }
+
+  function getLogoValidationError(modelo, ancho, alto) {
+    if (ancho <= 0 || alto <= 0) return "";
+    const anchoMax = parseNumber(MAX_LOGO_WIDTH_BY_MODEL[modelo] || 210);
+    if (ancho > anchoMax) {
+      return `El ancho supera el máximo para ${modelLabel(modelo)} (${anchoMax} mm).`;
+    }
+    if (alto > MAX_LOGO_HEIGHT) {
+      return `La altura no puede superar ${MAX_LOGO_HEIGHT} mm.`;
+    }
+    return "";
+  }
+
+  function updateLogoLimitsForCard(card) {
+    const modelo = (card?.dataset?.modelo || "").trim();
+    const anchoMax = parseNumber(MAX_LOGO_WIDTH_BY_MODEL[modelo] || 210);
+    card?.querySelectorAll(".logo-block").forEach((block) => {
+      const anchoInput = block.querySelector(".logo-ancho");
+      const altoInput = block.querySelector(".logo-alto");
+      if (anchoInput) anchoInput.max = String(anchoMax);
+      if (altoInput) altoInput.max = String(MAX_LOGO_HEIGHT);
+    });
+  }
+
+  function validateLogoBlock(logoBlock) {
+    const card = logoBlock.closest(".modelo-card");
+    const modelo = (card?.dataset?.modelo || "").trim();
+    const anchoInput = logoBlock.querySelector(".logo-ancho");
+    const altoInput = logoBlock.querySelector(".logo-alto");
+    const errorNode = logoBlock.querySelector(".logo-error");
+    const ancho = parseNumber(anchoInput?.value);
+    const alto = parseNumber(altoInput?.value);
+    const msg = getLogoValidationError(modelo, ancho, alto);
+    if (errorNode) {
+      errorNode.textContent = msg;
+      errorNode.classList.toggle("hidden", !msg);
+    }
+    if (anchoInput) anchoInput.classList.toggle("border-red-500", Boolean(msg));
+    if (altoInput) altoInput.classList.toggle("border-red-500", Boolean(msg));
+    return !msg;
+  }
+
+  function setLogoPhotoPreview(block, dataUrl, fileName = "") {
+    const img = block.querySelector(".logo-photo-preview");
+    const ph = block.querySelector(".logo-photo-ph");
+    block.dataset.fotoData = dataUrl || "";
+    block.dataset.fotoName = fileName || "";
+    if (img) {
+      img.src = dataUrl || "";
+      img.classList.toggle("hidden", !dataUrl);
+    }
+    if (ph) ph.classList.toggle("hidden", !!dataUrl);
+  }
+
+  function createLogoBlock(modelo = "") {
+    const anchoMax = parseNumber(MAX_LOGO_WIDTH_BY_MODEL[modelo] || 210);
+    const block = document.createElement("div");
+    block.className = "rounded-lg border border-gray-700 p-3 bg-gray-800/70 logo-block";
+    block.innerHTML = `
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-stretch">
+        <div class="lg:col-span-8 space-y-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <label class="text-xs text-gray-300">Ancho (mm)
+              <input type="number" min="0" max="${anchoMax}" class="logo-ancho mt-1 w-full rounded-md border border-gray-600 bg-gray-900 px-2 h-10 text-sm"/>
+            </label>
+            <label class="text-xs text-gray-300">Alto (mm)
+              <input type="number" min="0" max="${MAX_LOGO_HEIGHT}" class="logo-alto mt-1 w-full rounded-md border border-gray-600 bg-gray-900 px-2 h-10 text-sm"/>
+            </label>
+          </div>
+          <label class="text-xs text-gray-300">Observación
+            <input type="text" class="logo-obs mt-1 w-full rounded-md border border-gray-600 bg-gray-900 px-2 h-10 text-sm" placeholder="Ej: Centrado, dorado, frente..."/>
+          </label>
+          <label class="text-xs text-gray-300 flex items-center gap-2">
+            <input type="checkbox" class="logo-qr h-4 w-4"/>
+            Es QR
+          </label>
+        </div>
+        <div class="lg:col-span-4">
+          <div tabindex="0" role="button" aria-label="Pegar o seleccionar foto del logo" class="logo-preview-box h-32 max-h-32 rounded-md border border-gray-700 bg-black/20 flex items-center justify-center overflow-hidden cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/40">
+            <span class="logo-photo-ph text-[10px] text-gray-500">Sin imagen</span>
+            <img class="logo-photo-preview hidden max-h-full max-w-full object-contain" alt="Foto logo"/>
+          </div>
+          <input type="file" accept="image/*" class="logo-foto hidden"/>
+        </div>
+      </div>
+      <p class="logo-error hidden mt-2 text-xs text-red-300"></p>
+      <div class="mt-2 flex justify-end">
+        <button type="button" class="btn-del-logo text-xs text-red-300 hover:text-red-200">Eliminar logo</button>
+      </div>
+    `;
+    setLogoPhotoPreview(block, "", "");
+
+    const fireRefresh = () => {
+      validateLogoBlock(block);
+      refreshSummary();
+    };
+    const fotoInput = block.querySelector(".logo-foto");
+    const previewBox = block.querySelector(".logo-preview-box");
+    const loadPhotoFile = (file) => {
+      if (!file) {
+        setLogoPhotoPreview(block, "", "");
+        refreshSummary();
+        return;
       }
-    } else {
-      // Si se selecciona "no", habilitar y limpiar los campos
-      inputAlto.disabled = false;
-      inputAncho.disabled = false;
-      inputAlto.value = '';
-      inputAncho.value = '';
+      const reader = new FileReader();
+      reader.onload = () => {
+        setLogoPhotoPreview(block, String(reader.result || ""), file.name || "");
+        refreshSummary();
+      };
+      reader.readAsDataURL(file);
+    };
+
+    block.querySelectorAll("input").forEach((el) => el.addEventListener("input", fireRefresh));
+    block.querySelector(".logo-qr")?.addEventListener("change", fireRefresh);
+    fotoInput?.addEventListener("change", (event) => loadPhotoFile(event.target?.files?.[0]));
+    previewBox?.addEventListener("click", () => fotoInput?.click());
+    previewBox?.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        fotoInput?.click();
+      }
+    });
+    previewBox?.addEventListener("paste", (event) => {
+      const items = Array.from(event.clipboardData?.items || []);
+      const imgItem = items.find((it) => it.type && it.type.startsWith("image/"));
+      if (!imgItem) return;
+      event.preventDefault();
+      const file = imgItem.getAsFile();
+      if (file) loadPhotoFile(file);
+    });
+    block.querySelector(".btn-del-logo")?.addEventListener("click", () => {
+      const parent = block.closest(".logos-container");
+      block.remove();
+      if (parent && !parent.querySelector(".logo-block")) {
+        parent.appendChild(createLogoBlock(modelo));
+      }
+      refreshSummary();
+    });
+    validateLogoBlock(block);
+    return block;
+  }
+
+  function addModelCard(empresa, modelo, cantidad) {
+    const list = document.getElementById("lista-modelos");
+    if (!list) return;
+
+    const card = document.createElement("div");
+    card.className = "rounded-xl border border-gray-700 bg-gray-800/60 p-4 modelo-card space-y-3";
+    card.dataset.modelIndex = String(modelIndex++);
+
+    card.innerHTML = `
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <p class="text-white font-semibold">${modelLabel(modelo)}</p>
+          <p class="text-xs text-gray-400">Empresa: ${empresa}</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <label class="text-xs text-gray-300">Cantidad
+            <input type="number" min="1" value="${Math.max(1, parseNumber(cantidad))}" class="modelo-cantidad mt-1 w-24 rounded-md border border-gray-600 bg-gray-900 px-2 h-9 text-sm"/>
+          </label>
+          <button type="button" class="btn-del-model text-xs text-red-300 hover:text-red-200">Eliminar</button>
+        </div>
+      </div>
+      <div class="text-xs text-gray-400">Logos del modelo</div>
+      <div class="logos-container space-y-2"></div>
+      <div>
+        <button type="button" class="btn-add-logo rounded-md border border-gray-600 px-3 h-9 text-xs hover:bg-gray-700">Agregar logo</button>
+      </div>
+    `;
+
+    card.dataset.empresa = empresa;
+    card.dataset.modelo = modelo;
+
+    const logosContainer = card.querySelector(".logos-container");
+    logosContainer.appendChild(createLogoBlock(modelo));
+
+    card.querySelector(".btn-add-logo")?.addEventListener("click", () => {
+      logosContainer.appendChild(createLogoBlock(modelo));
+      refreshSummary();
+    });
+    card.querySelector(".btn-del-model")?.addEventListener("click", () => {
+      card.remove();
+      refreshSummary();
+    });
+    card.querySelector(".modelo-cantidad")?.addEventListener("input", refreshSummary);
+
+    list.appendChild(card);
+    updateLogoLimitsForCard(card);
+    refreshSummary();
+  }
+
+  function readItems() {
+    const cards = Array.from(document.querySelectorAll(".modelo-card"));
+    return cards.map((card) => {
+      const empresa = (card.dataset.empresa || "").trim();
+      const modelo = (card.dataset.modelo || "").trim();
+      const cantidad = Math.max(1, parseNumber(card.querySelector(".modelo-cantidad")?.value));
+      const logos = Array.from(card.querySelectorAll(".logo-block")).map((logoNode) => {
+        const ancho_mm = parseNumber(logoNode.querySelector(".logo-ancho")?.value);
+      const alto_mm = parseNumber(logoNode.querySelector(".logo-alto")?.value);
+      const es_qr = Boolean(logoNode.querySelector(".logo-qr")?.checked);
+      const observacion = (logoNode.querySelector(".logo-obs")?.value || "").trim();
+      const foto_data = logoNode.dataset.fotoData || "";
+      const foto_name = logoNode.dataset.fotoName || "";
+      const error = getLogoValidationError(modelo, ancho_mm, alto_mm);
+      return {
+        ancho_mm,
+        alto_mm,
+        es_qr,
+        observacion,
+        foto_data,
+        foto_name,
+        valido: !error,
+        error
+      };
+      }).filter((l) => l.ancho_mm > 0 && l.alto_mm > 0);
+
+      return { empresa, modelo, cantidad, logos };
+    }).filter((item) => item.empresa && item.modelo && item.cantidad > 0);
+  }
+
+  function renderSummary(itemsDetail, costoTotal, finalTotal) {
+    const costoItems = document.getElementById("resumen-items-costo");
+    const finalItems = document.getElementById("resumen-items-final");
+    const costoTotalEl = document.getElementById("total-costo");
+    const finalTotalEl = document.getElementById("total-final");
+    const marginLabel = document.getElementById("lbl-margen");
+    const warningBox = document.getElementById("validation-warning");
+
+    if (!costoItems || !finalItems || !costoTotalEl || !finalTotalEl || !marginLabel) return;
+
+    const costoRows = itemsDetail.map((it) => `
+      <div class="rounded-lg border border-gray-700/50 p-3 space-y-1">
+        <div class="flex justify-between text-sm">
+          <span class="font-semibold">${it.empresa} - ${modelLabel(it.modelo)} (${it.cantidad})</span>
+          <span class="font-semibold">${fmtARS(it.costoTotal)}</span>
+        </div>
+        <div class="flex justify-between text-xs text-gray-300">
+          <span>Cajas: ${fmtARS(it.cajaUnit)} x ${it.cantidad}</span>
+          <span>${fmtARS(it.cajaTotal)}</span>
+        </div>
+        <div class="flex justify-between text-xs text-gray-300">
+          <span>Logos: ${fmtARS(it.logosUnit)} x ${it.cantidad}</span>
+          <span>${fmtARS(it.logosTotal)}</span>
+        </div>
+        ${it.logosDetalle.map((logo, idx) => `
+          <div class="flex justify-between text-[11px] text-gray-400 pl-2">
+            <span>Logo ${idx + 1}${logo.es_qr ? " (QR)" : ""} ${logo.ancho_mm}x${logo.alto_mm}${logo.foto_name ? ` [${logo.foto_name}]` : ""}: ${fmtARS(logo.unit)}</span>
+            <span>${fmtARS(logo.total)}</span>
+          </div>
+        `).join("")}
+      </div>
+    `).join("");
+
+    const finalRows = itemsDetail.map((it) => `
+      <div class="rounded-lg border border-gray-700/50 p-3 space-y-1">
+        <div class="flex justify-between text-sm">
+          <span class="font-semibold">${it.empresa} - ${modelLabel(it.modelo)} (${it.cantidad})</span>
+          <span class="font-semibold">${fmtARS(it.finalTotal)}</span>
+        </div>
+        <div class="flex justify-between text-xs text-gray-300">
+          <span>Cajas final: ${fmtARS(it.cajaUnitFinal)} x ${it.cantidad}</span>
+          <span>${fmtARS(it.cajaTotalFinal)}</span>
+        </div>
+        <div class="flex justify-between text-xs text-gray-300">
+          <span>Logos final: ${fmtARS(it.logosUnitFinal)} x ${it.cantidad}</span>
+          <span>${fmtARS(it.logosTotalFinal)}</span>
+        </div>
+        ${it.logosDetalleFinal.map((logo, idx) => `
+          <div class="flex justify-between text-[11px] text-gray-400 pl-2">
+            <span>Logo ${idx + 1}${logo.es_qr ? " (QR)" : ""} ${logo.ancho_mm}x${logo.alto_mm}${logo.foto_name ? ` [${logo.foto_name}]` : ""}: ${fmtARS(logo.unitFinal)}</span>
+            <span>${fmtARS(logo.totalFinal)}</span>
+          </div>
+        `).join("")}
+      </div>
+    `).join("");
+
+    costoItems.innerHTML = costoRows || '<p class="text-sm text-gray-400">Sin items cargados.</p>';
+    finalItems.innerHTML = finalRows || '<p class="text-sm text-gray-400">Sin items cargados.</p>';
+    costoTotalEl.textContent = fmtARS(costoTotal);
+    finalTotalEl.textContent = fmtARS(finalTotal);
+    marginLabel.textContent = String(parseNumber(PRICING.margen_cliente_pct));
+    const invalidCount = itemsDetail.reduce((acc, it) => acc + parseNumber(it.invalidLogos || 0), 0);
+    if (warningBox) {
+      warningBox.classList.toggle("hidden", invalidCount === 0);
+      warningBox.textContent = invalidCount > 0
+        ? `Hay ${invalidCount} logo(s) fuera de límite. Esos logos no se incluyeron en el cálculo hasta corregir medidas.`
+        : "";
     }
   }
-  
-  function copiarLogo2Medida1(index) {
-    // Select que indica si es igual al logo 2 de la Medida 1
-    const selectIgual = document.getElementById(`igualLogo2Medida1-${index}`);
 
-    // Inputs del segundo logo de la Medida "index"
-    const inputAlto = document.getElementById(`altoLogo-2-${index}`);
-    const inputAncho = document.getElementById(`anchoLogo-2-${index}`);
+  function refreshSummary() {
+    const items = readItems();
+    const totalEmpresa = {};
+    items.forEach((it) => {
+      totalEmpresa[it.empresa] = (totalEmpresa[it.empresa] || 0) + it.cantidad;
+    });
 
-    if (selectIgual && selectIgual.value === 'si') {
-        // Tomar dimensiones del logo 2 de la Medida 1
-        const altoMedida1 = document.getElementById('altoLogo-2-1')?.value;
-        const anchoMedida1 = document.getElementById('anchoLogo-2-1')?.value;
+    const factorCliente = 1 + parseNumber(PRICING.margen_cliente_pct) / 100;
+    let costoTotal = 0;
+    const detail = items.map((it) => {
+      const cajaUnit = precioCajaUnitario(it.modelo, it.cantidad);
+      const cajaTotal = round2(cajaUnit * it.cantidad);
+      const factorEmpresa = factorPorCantidad(totalEmpresa[it.empresa] || it.cantidad);
+      const logosValidos = it.logos.filter((logo) => logo.valido);
+      const invalidLogos = it.logos.length - logosValidos.length;
+      const logosDetalle = logosValidos.map((logo) => {
+        const unit = precioLogoUnitario(logo, factorEmpresa);
+        return {
+          ...logo,
+          unit,
+          total: round2(unit * it.cantidad)
+        };
+      });
+      const logosUnit = round2(logosDetalle.reduce((acc, logo) => acc + logo.unit, 0));
+      const logosTotal = round2(logosUnit * it.cantidad);
+      const costoItem = round2(cajaTotal + logosTotal);
+      const finalItem = round2(costoItem * factorCliente);
+      const cajaUnitFinal = round2(cajaUnit * factorCliente);
+      const cajaTotalFinal = round2(cajaTotal * factorCliente);
+      const logosUnitFinal = round2(logosUnit * factorCliente);
+      const logosTotalFinal = round2(logosTotal * factorCliente);
+      const logosDetalleFinal = logosDetalle.map((logo) => ({
+        ...logo,
+        unitFinal: round2(logo.unit * factorCliente),
+        totalFinal: round2(logo.total * factorCliente)
+      }));
+      costoTotal += costoItem;
+      return {
+        ...it,
+        invalidLogos,
+        cajaUnit,
+        cajaTotal,
+        cajaUnitFinal,
+        cajaTotalFinal,
+        logosUnit,
+        logosTotal,
+        logosUnitFinal,
+        logosTotalFinal,
+        logosDetalle,
+        logosDetalleFinal,
+        costoTotal: costoItem,
+        finalTotal: finalItem
+      };
+    });
 
-        // Verificar que la Medida 1 tenga datos en el segundo logo
-        if (altoMedida1 && anchoMedida1) {
-            inputAlto.value = altoMedida1;
-            inputAncho.value = anchoMedida1;
-            // Deshabilitar para evitar modificaciones
-            inputAlto.disabled = true;
-            inputAncho.disabled = true;
-        } else {
-            alert('Primero completa los datos del segundo logo en la Medida 1.');
-            // Volver a "No" si no existen datos en la Medida 1
-            selectIgual.value = 'no';
-        }
-    } else {
-        // Si se vuelve a "No", habilitar y limpiar los campos
-        inputAlto.disabled = false;
-        inputAncho.disabled = false;
-        inputAlto.value = '';
-        inputAncho.value = '';
+    costoTotal = round2(costoTotal);
+    const finalTotal = round2(costoTotal * factorCliente);
+    LAST_SUMMARY = {
+      detail,
+      costoTotal,
+      finalTotal
+    };
+    renderSummary(detail, costoTotal, finalTotal);
+  }
+
+  function getHeaderBaseLines() {
+    const cliente = (document.getElementById("inp-cliente")?.value || "").trim() || "Sin cliente";
+    const fecha = (document.getElementById("inp-fecha")?.value || "").trim() || new Date().toISOString().slice(0, 10);
+    return { cliente, fecha };
+  }
+
+  function fmtFechaDMY(iso) {
+    if (!iso || typeof iso !== "string" || !iso.includes("-")) return iso || "";
+    const [y, m, d] = iso.split("-");
+    return `${d}/${m}/${y}`;
+  }
+
+  async function createResumenPdf(mode = "costo") {
+    refreshSummary();
+    if (!LAST_SUMMARY.detail.length) {
+      alert("No hay items para generar etiqueta.");
+      return;
     }
-}
+    const { cliente, fecha } = getHeaderBaseLines();
+    const fechaDMY = fmtFechaDMY(fecha);
+    const css = `
+      @page { size: A4; margin: 10mm; }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body { background: #fff; font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+      .sheet {
+        width: calc(210mm - 20mm);
+        height: calc(297mm - 20mm);
+        display: grid;
+        grid-template-columns: 92mm 92mm;
+        grid-auto-rows: 135.5mm;
+        gap: 6mm;
+        page-break-after: always;
+        margin: 0 auto;
+      }
+      .etq {
+        width: 100%; height: 100%;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 5mm;
+        display: grid;
+        grid-template-rows: auto auto 1fr;
+        row-gap: 3mm;
+      }
+      .etq-hdr { border-bottom: 1px solid #e2e8f0; padding-bottom: 2mm; }
+      .etq-empresa {
+        color: #111518; font-weight: 900; font-size: 16px; line-height: 1.1; letter-spacing: -0.02em;
+        text-align: left; margin: 0;
+      }
+      .datos { display: grid; gap: 2mm; }
+      .item { display: grid; grid-template-columns: auto 1fr; gap: 3mm; align-items: baseline; }
+      .label { color: #637a88; font-size: 11px; }
+      .valor { color: #111518; font-size: 12px; font-weight: 600; }
+      .foto {
+        border: 2px dashed #94a3b8; background: #f8fafc;
+        border-radius: 8px; width: 100%; height: 100%;
+        min-height: 60mm;
+        display: flex; align-items: center; justify-content: center;
+        padding: 3mm;
+        overflow: hidden;
+      }
+      .foto img { width: 100%; height: 100%; object-fit: contain; border-radius: 6px; }
+      .ph { color: #94a3b8; font-size: 11px; }
+      @media print { .etq { box-shadow: none; } }
+    `;
 
+    const items = LAST_SUMMARY.detail;
+    const grupos = [];
+    for (let i = 0; i < items.length; i += 4) grupos.push(items.slice(i, i + 4));
 
+    let html = `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"/>
+      <title>Etiquetas 2x2</title>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet"/>
+      <style>${css}</style></head><body>`;
 
+    grupos.forEach((grupo) => {
+      html += `<section class="sheet">`;
+      grupo.forEach((it) => {
+        const primerLogo = (it.logosDetalle && it.logosDetalle.length) ? it.logosDetalle[0] : null;
+        const alto = primerLogo ? primerLogo.alto_mm : 0;
+        const ancho = primerLogo ? primerLogo.ancho_mm : 0;
+        const logoNombre = primerLogo?.foto_name || "Sin nombre";
+        const fotoSrc = primerLogo?.foto_data || "";
+        const totalModelo = mode === "costo" ? it.costoTotal : it.finalTotal;
+        const tituloPrecio = mode === "costo" ? "Total costo" : "Total final";
+
+        html += `
+          <article class="etq">
+            <header class="etq-hdr">
+              <h3 class="etq-empresa">${it.empresa || "Empresa"}</h3>
+            </header>
+            <section class="datos">
+              <div class="item"><span class="label">Fecha</span><span class="valor">${fechaDMY}</span></div>
+              <div class="item"><span class="label">Cliente</span><span class="valor">${cliente}</span></div>
+              <div class="item"><span class="label">Modelo de caja</span><span class="valor">${modelLabel(it.modelo)}</span></div>
+              <div class="item"><span class="label">Cantidad</span><span class="valor">${it.cantidad}</span></div>
+              <div class="item"><span class="label">Obs</span><span class="valor">${(it.logosDetalle || []).map(l => l.observacion).filter(Boolean).join(" | ") || "-"}</span></div>
+              <div class="item"><span class="label">Alto</span><span class="valor">${alto} mm</span></div>
+              <div class="item"><span class="label">Ancho</span><span class="valor">${ancho} mm</span></div>
+              <div class="item"><span class="label">${tituloPrecio}</span><span class="valor">${fmtARS(totalModelo)}</span></div>
+            </section>
+            <section class="foto">
+              ${fotoSrc ? `<img src="${fotoSrc}" alt="Referencia">` : `<span class="ph">Sin imagen de referencia</span>`}
+            </section>
+          </article>
+        `;
+      });
+      html += `</section>`;
+    });
+
+    html += `</body></html>`;
+    const w = window.open("", "_blank");
+    if (!w) {
+      alert("No se pudo abrir la ventana de impresión (revisá bloqueadores).");
+      return;
+    }
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    w.print();
+  }
+
+  function renderPriceRows() {
+    const tbody = document.getElementById("precios-modelos-rows");
+    if (!tbody) return;
+    const rows = Object.entries(PRICING.modelos_precio)
+      .sort((a, b) => a[0].localeCompare(b[0], "es"))
+      .map(([modelo, precio]) => `
+        <tr data-model="${modelo}">
+          <td class="px-2 py-2 text-xs">${modelLabel(modelo)}</td>
+          <td class="px-2 py-2"><input type="number" min="0" step="1" class="precio-modelo w-full rounded-md border border-gray-600 bg-gray-900 px-2 h-9 text-sm" value="${parseNumber(precio)}"></td>
+          <td class="px-2 py-2 text-right"><button type="button" class="btn-del-precio text-red-300 text-xs">Quitar</button></td>
+        </tr>
+      `).join("");
+
+    tbody.innerHTML = rows || '<tr><td colspan="3" class="px-2 py-3 text-xs text-gray-400">Sin modelos.</td></tr>';
+
+    tbody.querySelectorAll(".btn-del-precio").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const tr = btn.closest("tr");
+        const key = tr?.dataset.model || "";
+        if (!key) return;
+        delete PRICING.modelos_precio[key];
+        renderPriceRows();
+      });
+    });
+  }
+
+  function applyPhotoPricingLockState() {
+    const locked = !photoPricingUnlocked;
+    const mm2 = document.getElementById("inp-precio-mm2");
+    const area = document.getElementById("inp-area-min");
+    const qr = document.getElementById("inp-factor-qr");
+    const lbl = document.getElementById("lbl-foto-pricing-lock");
+    if (mm2) mm2.disabled = locked;
+    if (area) area.disabled = locked;
+    if (qr) qr.disabled = locked;
+    if (lbl) {
+      lbl.textContent = locked ? "Bloqueado: precios de foto" : "Desbloqueado: precios de foto";
+      lbl.className = locked ? "text-xs text-amber-300" : "text-xs text-emerald-300";
+    }
+  }
+
+  function syncPriceModalFromConfig() {
+    const mm2 = document.getElementById("inp-precio-mm2");
+    const area = document.getElementById("inp-area-min");
+    const qr = document.getElementById("inp-factor-qr");
+    const margin = document.getElementById("inp-margen");
+    const desc = document.getElementById("inp-desc-mas50");
+
+    if (mm2) mm2.value = String(parseNumber(PRICING.valor_mm2));
+    if (area) area.value = String(parseNumber(PRICING.area_min_mm2));
+    if (qr) qr.value = String(parseNumber(PRICING.factor_qr));
+    if (margin) margin.value = String(parseNumber(PRICING.margen_cliente_pct));
+    if (desc) desc.value = String(parseNumber(PRICING.descuento_caja_mas_50_pct));
+    applyPhotoPricingLockState();
+    renderPriceRows();
+  }
+
+  function savePriceModalToConfig() {
+    if (photoPricingUnlocked) {
+      PRICING.valor_mm2 = parseNumber(document.getElementById("inp-precio-mm2")?.value);
+      PRICING.area_min_mm2 = Math.max(0, parseNumber(document.getElementById("inp-area-min")?.value));
+      PRICING.factor_qr = Math.max(0, parseNumber(document.getElementById("inp-factor-qr")?.value));
+    }
+    PRICING.margen_cliente_pct = parseNumber(document.getElementById("inp-margen")?.value);
+    PRICING.descuento_caja_mas_50_pct = Math.max(0, parseNumber(document.getElementById("inp-desc-mas50")?.value));
+
+    const rows = Array.from(document.querySelectorAll("#precios-modelos-rows tr[data-model]"));
+    const modelos = {};
+    rows.forEach((row) => {
+      const key = row.dataset.model || "";
+      const val = parseNumber(row.querySelector(".precio-modelo")?.value);
+      if (key) modelos[key] = val;
+    });
+    PRICING.modelos_precio = modelos;
+
+    savePricing(PRICING);
+    refreshSummary();
+  }
+
+  function toggleModal(show) {
+    const modal = document.getElementById("modal-precios");
+    if (!modal) return;
+    modal.classList.toggle("hidden", !show);
+  }
+
+  function setToday() {
+    const inp = document.getElementById("inp-fecha");
+    if (!inp) return;
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    inp.value = now.toISOString().slice(0, 10);
+  }
+
+  function init() {
+    setToday();
+
+    const modelSelect = document.getElementById("sel-modelo");
+    if (modelSelect) {
+      modelSelect.innerHTML = '<option value="">Elegi un modelo...</option>' + createModelOptionsHtml();
+    }
+
+    document.getElementById("btn-add-modelo")?.addEventListener("click", () => {
+      const empresa = (document.getElementById("inp-empresa")?.value || "").trim();
+      const modelo = (document.getElementById("sel-modelo")?.value || "").trim();
+      const cantidad = parseNumber(document.getElementById("inp-cantidad")?.value);
+
+      if (!empresa) {
+        alert("Ingresá la empresa del logo.");
+        return;
+      }
+      if (!modelo) {
+        alert("Elegí un tipo de caja.");
+        return;
+      }
+      if (cantidad < 1) {
+        alert("La cantidad debe ser mayor o igual a 1.");
+        return;
+      }
+
+      addModelCard(empresa, modelo, cantidad);
+      const qtyInput = document.getElementById("inp-cantidad");
+      if (qtyInput) qtyInput.value = "1";
+    });
+
+    document.getElementById("btn-precios")?.addEventListener("click", () => {
+      const pass = window.prompt("Ingresá contraseña de precios:");
+      if (pass === null) return;
+      if (pass !== PRICE_PASSWORD && pass !== PHOTO_PRICING_PASSWORD) {
+        alert("Contraseña incorrecta.");
+        return;
+      }
+      photoPricingUnlocked = (pass === PHOTO_PRICING_PASSWORD);
+      syncPriceModalFromConfig();
+      toggleModal(true);
+    });
+
+    document.getElementById("btn-cerrar-precios")?.addEventListener("click", () => toggleModal(false));
+    document.getElementById("btn-cancelar-precios")?.addEventListener("click", () => toggleModal(false));
+
+    document.getElementById("btn-guardar-precios")?.addEventListener("click", () => {
+      savePriceModalToConfig();
+      toggleModal(false);
+    });
+
+    document.getElementById("btn-add-precio-modelo")?.addEventListener("click", () => {
+      const keyRaw = (document.getElementById("inp-nuevo-modelo")?.value || "").trim().toLowerCase();
+      const val = parseNumber(document.getElementById("inp-nuevo-precio")?.value);
+      if (!keyRaw) {
+        alert("Ingresá el nombre/código del modelo.");
+        return;
+      }
+      PRICING.modelos_precio[keyRaw] = val;
+      const nModel = document.getElementById("inp-nuevo-modelo");
+      const nPrice = document.getElementById("inp-nuevo-precio");
+      if (nModel) nModel.value = "";
+      if (nPrice) nPrice.value = "";
+      renderPriceRows();
+    });
+
+    document.getElementById("btn-limpiar")?.addEventListener("click", () => {
+      const list = document.getElementById("lista-modelos");
+      if (list) list.innerHTML = "";
+      refreshSummary();
+    });
+
+    document.getElementById("btn-pdf-costo")?.addEventListener("click", () => createResumenPdf("costo"));
+    document.getElementById("btn-pdf-final")?.addEventListener("click", () => createResumenPdf("final"));
+
+    refreshSummary();
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
+})();
