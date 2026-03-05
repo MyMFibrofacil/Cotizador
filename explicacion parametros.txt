@@ -1,0 +1,5 @@
+te paso el archivo de excel generado para que puedas extraer de ahí la informacion correspondiente.
+en la hoja "Precios", vas a encontrar 3 tablas:
+1- tabla llamada "Cajas", en la cual la primera columna tiene el Tipo de Material Tapa, la segunda columna contiene los distintos Tipos de Cajas, mientras que la tercer columna tiene los precios correspondientes a cada Tipo de Caja.
+2- tabla llamada "Escalas", en la cual en la primer columna esta el Limite, mientras que en la segunda columna esta el Factor
+3- tabla llamada "Logos", la cual contiene 3 columnas, en la primera la medida (1 milimetro cuadrado), en la segunda el precio nuestro y en la tercer columna el precio de los clientes, esta tercer columna es la que debería utilizarse para calcular el precio de los logos
